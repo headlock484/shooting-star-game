@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Shooting Star - Choose Your Adventure</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #040712 0%, #0b1631 45%, #15224b 100%);
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+      color: #fff;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* Game night sky background - imported from classic version */
+    .game-night-sky {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        radial-gradient(1200px 800px at 70% 0%, rgba(50,80,160,.25), transparent 55%),
+        radial-gradient(1000px 700px at 20% 20%, rgba(0,120,255,.18), transparent 60%),
+        linear-gradient(180deg,#040712 0%,#0b1631 45%,#15224b 100%);
+      background-blend-mode: screen, screen, normal;
+    }
+
+    /* Twinkling background stars from game */
+    .bgstar {
+      position: fixed;
+      color: rgba(255,215,0,.65);
+      font-size: 5px;
+      animation: flick 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .bgstar.small { font-size: 4px; }
+    .bgstar.tiny { font-size: 3.5px; }
+    @keyframes flick {
+      0%, 100% { opacity: .35; transform: scale(1); }
+      50% { opacity: .9; transform: scale(1.18); }
+    }
+
+    /* Animated starry night sky - appears first */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 1;
+    }
+
+    .star {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 2.5px;
+      animation: twinkle 4s ease-in-out infinite;
+      text-shadow: 0 0 3px rgba(255, 255, 255, 0.8), 0 0 6px rgba(255, 255, 255, 0.4);
+    }
+
+    .star.blue {
+      color: rgba(100, 200, 255, 0.9);
+      text-shadow: 0 0 3px rgba(100, 200, 255, 0.9), 0 0 6px rgba(100, 200, 255, 0.5);
+    }
+
+    .star:nth-child(2n) { animation-duration: 5s; animation-delay: 0.5s; }
+    .star:nth-child(3n) { animation-duration: 6s; animation-delay: 1s; }
+    .star:nth-child(4n) { animation-duration: 3.5s; animation-delay: 1.5s; }
+    .star:nth-child(5n) { animation-duration: 4.5s; animation-delay: 2s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    /* Swarming stars - move in patterns */
+    .swarm-star {
+      position: fixed;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 4px;
+      pointer-events: none;
+      z-index: 2;
+      animation: swarm 20s ease-in-out infinite, twinkle 3s ease-in-out infinite;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.5);
+    }
+
+    .swarm-star.blue {
+      color: rgba(100, 200, 255, 0.9);
+      text-shadow: 0 0 4px rgba(100, 200, 255, 0.9), 0 0 8px rgba(100, 200, 255, 0.6);
+    }
+
+    .swarm-star.small {
+      font-size: 3px;
+      animation-duration: 25s, 4s;
+    }
+
+    .swarm-star.tiny {
+      font-size: 2px;
+      animation-duration: 30s, 5s;
+    }
+
+    @keyframes swarm {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+      }
+      20% {
+        transform: translate(5vw, -3vh) scale(1.3);
+        opacity: 0.9;
+      }
+      40% {
+        transform: translate(-4vw, 5vh) scale(0.8);
+        opacity: 0.5;
+      }
+      60% {
+        transform: translate(4vw, 4vh) scale(1.2);
+        opacity: 0.8;
+      }
+      80% {
+        transform: translate(-3vw, -2vh) scale(1.1);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+      }
+    }
+
+    /* Additional twinkling stars layer */
+    .extra-stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .extra-star {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 2px;
+      animation: twinkle 4s ease-in-out infinite;
+      text-shadow: 0 0 2px rgba(255, 255, 255, 0.7), 0 0 4px rgba(255, 255, 255, 0.4);
+    }
+
+    .extra-star.blue {
+      color: rgba(100, 200, 255, 0.9);
+      text-shadow: 0 0 2px rgba(100, 200, 255, 0.9), 0 0 4px rgba(100, 200, 255, 0.5);
+    }
+
+    /* Large, dramatic shooting star - blue, red, yellow */
+    .shooting-star {
+      position: fixed;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      z-index: 9;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle, #ffff00 0%, #ff6b35 40%, #1e6cff 100%);
+      box-shadow: 0 0 25px rgba(255, 255, 0, 1),
+                  0 0 50px rgba(255, 107, 53, 0.8),
+                  0 0 80px rgba(30, 108, 255, 0.6),
+                  0 0 120px rgba(255, 255, 0, 0.4);
+      animation: starPulse 0.3s ease-in-out infinite;
+    }
+
+    @keyframes starPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Dramatic glowing trail - blue, red, yellow gradient */
+    .star-trail {
+      position: fixed;
+      width: 6px;
+      background: linear-gradient(90deg, 
+        rgba(30, 108, 255, 1) 0%,
+        rgba(30, 108, 255, 0.9) 15%,
+        rgba(255, 107, 53, 0.9) 35%,
+        rgba(255, 107, 53, 0.8) 50%,
+        rgba(255, 255, 0, 0.8) 70%,
+        rgba(255, 255, 0, 0.6) 85%,
+        transparent 100%);
+      z-index: 8;
+      pointer-events: none;
+      transform-origin: left center;
+      opacity: 0;
+      box-shadow: 0 0 40px rgba(30, 108, 255, 0.7),
+                  0 0 60px rgba(255, 107, 53, 0.6),
+                  0 0 80px rgba(255, 255, 0, 0.5);
+    }
+
+    /* Gold star dust particles */
+    .star-dust {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd700 0%, #ffed4e 50%, transparent 100%);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+                  0 0 20px rgba(255, 215, 0, 0.5);
+      z-index: 9;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Game shooting star container - positioned between game mode blocks - moved down by 2 lines */
+    .game-star-container {
+      position: fixed;
+      width: 100%;
+      height: 200px;
+      top: calc(50% + 2em); /* Moved down by 2 lines */
+      left: 0;
+      transform: translateY(-50%);
+      z-index: 15; /* Higher than cards (which are z-index: 10) */
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* Actual game star wrap with multiple tails - matching game exactly */
+    .game-star-wrap {
+      position: absolute;
+      top: 50%;
+      --len: 180px;
+      animation: starShootAcross 3s ease-out forwards;
+    }
+
+    @keyframes starShootAcross {
+      0% {
+        left: -100px;
+        opacity: 0;
+        transform: translateY(-50%);
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(-50%);
+      }
+      90% {
+        left: 50%;
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+      100% {
+        left: 50%;
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    /* Game star with shine effects */
+    .game-star {
+      font-size: 30px;
+      filter: drop-shadow(0 0 8px rgba(255,255,204,.9))
+              drop-shadow(0 0 18px rgba(255,236,179,.55))
+              drop-shadow(0 0 28px rgba(255,255,255,.3));
+      text-shadow:
+        0 0 6px rgba(255,255,255,.75),
+        0 0 12px rgba(255,255,210,.55),
+        0 0 18px rgba(255,236,179,.35);
+      color: #fff6b0;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* Soft radiating gleam */
+    .game-star::after {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.0) 0 20%, rgba(255,255,255,.18) 21%, rgba(255,255,255,0) 22%,
+                                      rgba(255,255,255,.0) 50%, rgba(255,255,255,.22) 51%, rgba(255,255,255,0) 52%);
+      filter: blur(10px);
+      opacity: .8;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: gleam 2.2s ease-in-out infinite;
+    }
+
+    @keyframes gleam {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(12deg); }
+    }
+
+    /* Multi-tail system from game */
+    .game-tail {
+      position: absolute;
+      right: 28px;
+      top: 50%;
+      height: 5px;
+      width: var(--len);
+      transform: translateY(-50%);
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 1;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%,
+                                       var(--c1) 25%, var(--c2) 55%,
+                                       rgba(255,255,255,0) 100%);
+      filter: blur(4px) saturate(1.1);
+      opacity: .9;
+    }
+
+    .game-tail.t1 { --c1: #ffb347; --c2: #ff8c00; transform: translateY(calc(-50% - 6px)); }
+    .game-tail.t2 { --c1: #ff6ab5; --c2: #ff2e8f; transform: translateY(calc(-50% - 2px)); }
+    .game-tail.t3 { --c1: #ff7a7a; --c2: #ff4040; transform: translateY(calc(-50% + 2px)); }
+    .game-tail.t4 { --c1: #6bb6ff; --c2: #2979ff; transform: translateY(calc(-50% + 6px)); }
+
+    /* Silver micro-streaks */
+    .game-tail.silver {
+      height: 3px;
+      opacity: .65;
+      filter: blur(3px);
+      background: repeating-linear-gradient(90deg,
+         rgba(255,255,255,0) 0 20px,
+         rgba(240,248,255,.35) 21px 38px,
+         rgba(255,255,255,0) 39px 56px);
+      width: calc(var(--len) * 0.85);
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: clamp(30px, 8vw, 60px) clamp(15px, 3vw, 25px) clamp(20px, 5vw, 40px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: clamp(30px, 8vw, 80px);
+    }
+
+    /* Title - swipes in like paint */
+    .title {
+      text-align: center;
+      margin-bottom: clamp(20px, 4vw, 30px);
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .title.animate-in {
+      animation: swipePaint 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes swipePaint {
+      0% {
+        opacity: 0;
+        transform: translateX(-100%) scale(0.8);
+      }
+      50% {
+        opacity: 0.7;
+        transform: translateX(5%) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .title h1 {
+      font-size: clamp(1.8rem, 7vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #ff7a18 0%, #ff9c2f 40%, #ffd700 60%, #ff7a18 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+      animation: shine 3.6s linear infinite;
+      margin-bottom: 12px;
+      text-shadow: 0 0 30px rgba(255, 122, 24, 0.3),
+                   0 0 60px rgba(255, 215, 0, 0.2);
+      filter: drop-shadow(0 0 20px rgba(255, 122, 24, 0.4));
+    }
+
+    @keyframes shine {
+      0% { background-position: -120% 0; }
+      50% { background-position: 0% 0; }
+      100% { background-position: 120% 0; }
+    }
+
+    .title p {
+      font-size: clamp(0.98rem, 2.88vw, 1.27rem); /* 15% larger */
+      font-weight: 600;
+      opacity: 0.95;
+      background: linear-gradient(90deg, #ff7a18 0%, #ff9c2f 25%, #00e5e5 50%, #9b6cff 75%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+      animation: rainbowShift 4s linear infinite;
+      letter-spacing: 0.03em;
+      margin-top: 4px;
+    }
+
+    /* Choose your adventure text above classic card */
+    .choose-adventure-text {
+      text-align: center;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: clamp(30px, 6vw, 50px);
+      margin-top: clamp(20px, 4vw, 35px);
+      opacity: 0;
+      transform: translateY(20px);
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #00e5e5 0%, #9b6cff 50%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+      animation: rainbowShift 5s linear infinite;
+    }
+
+    .choose-adventure-text.animate-in {
+      animation: fadeInUpText 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, rainbowShift 5s linear infinite;
+    }
+
+    @keyframes rainbowShift {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Modes description text */
+    .modes-description {
+      text-align: center;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: clamp(25px, 5vw, 35px);
+      opacity: 0;
+      transform: translateY(20px);
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #00e5e5 0%, #9b6cff 50%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+    }
+
+    .modes-description.animate-in {
+      animation: fadeInUpText 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+                 rainbowShift 5s linear infinite 0.8s;
+    }
+
+    @keyframes fadeInUpText {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Game mode cards */
+    .game-modes {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      margin-top: clamp(10px, 2vw, 20px);
+      gap: clamp(80px, 12vw, 120px); /* Equal spacing above and below star */
+    }
+
+    /* Position classic card above star - moved up by 1 line for mobile */
+    .game-card.classic {
+      margin-bottom: 0;
+      margin-top: -5em;
+    }
+
+    /* Position PvP card below star - moved down by 2 lines for even spacing */
+    .game-card.pvp {
+      margin-top: -1em;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px solid rgba(0, 229, 229, 0.2);
+      border-radius: 20px;
+      padding: clamp(20px, 4vw, 28px) clamp(18px, 3vw, 24px);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(30px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Classic card specific styling - reduced padding, full width text */
+    .game-card.classic {
+      padding: clamp(12px, 2.5vw, 18px) clamp(12px, 2vw, 16px);
+    }
+
+    .game-card.classic p {
+      text-align: left;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 0;
+      line-height: 1.5;
+      margin-bottom: clamp(8px, 2vw, 12px);
+    }
+
+    /* Hide line break on desktop */
+    .mobile-break {
+      display: none;
+    }
+
+    /* Wish Boost highlight - gold */
+    .wish-boost-highlight {
+      color: #ffd700;
+      font-weight: 700;
+      text-shadow: 0 0 4px rgba(255, 215, 0, 0.6), 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+
+    .game-card.animate-in {
+      animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 229, 229, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .game-card:hover::before,
+    .game-card:active::before {
+      left: 100%;
+    }
+
+    .game-card:hover,
+    .game-card:active {
+      transform: translateY(-10px) scale(1.04);
+      border-color: rgba(0, 229, 229, 0.6);
+      box-shadow: 0 20px 60px rgba(0, 229, 229, 0.3),
+                  0 0 100px rgba(0, 229, 229, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .game-card h2 {
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 900;
+      margin-bottom: clamp(10px, 2vw, 12px);
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      transform: scale(0.5);
+    }
+
+    .game-card h2.transform-in {
+      animation: transformFromStar 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes transformFromStar {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) translateX(-50px);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1) translateX(0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+      }
+    }
+
+    .game-card.classic h2 {
+      background: linear-gradient(90deg, #1e6cff 0%, #00e5e5 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .game-card.pvp h2 {
+      background: linear-gradient(90deg, #9b6cff 0%, #ff6b9d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .game-card p {
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: clamp(14px, 3vw, 18px);
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      font-weight: 400;
+    }
+
+    .game-card p.animate-content {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .game-card .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      background: rgba(255, 142, 43, 0.3);
+      border: 1.5px solid rgba(255, 142, 43, 0.7);
+      border-radius: 20px;
+      font-size: clamp(0.7rem, 1.8vw, 0.75rem);
+      font-weight: 700;
+      color: #ff8e2b;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+      animation: pulse 2s ease-in-out infinite;
+      opacity: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 10px rgba(255, 142, 43, 0.3),
+                  0 0 20px rgba(255, 142, 43, 0.2);
+    }
+
+    .game-card .badge.animate-badge {
+      animation: pulse 2s ease-in-out infinite, fadeIn 0.6s ease-out forwards;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Play button icon - warm orange/red */
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(30px, 7.2vw, 42px);
+      height: clamp(30px, 7.2vw, 42px);
+      background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ff6b35 100%);
+      border: 2px solid rgba(255, 107, 53, 0.7);
+      border-radius: 50%;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      opacity: 0;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.5),
+                  0 0 40px rgba(255, 140, 66, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .play-btn.animate-btn {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .play-btn::before {
+      content: '▶';
+      font-size: clamp(11px, 3vw, 14px);
+      margin-left: 2px;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .play-btn:hover,
+    .play-btn:active {
+      background: linear-gradient(135deg, #ff5722 0%, #ff7043 50%, #ff5722 100%);
+      border-color: rgba(255, 87, 34, 0.9);
+      box-shadow: 0 8px 30px rgba(255, 87, 34, 0.6),
+                  0 0 60px rgba(255, 112, 67, 0.5),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transform: scale(1.12) rotate(5deg);
+    }
+
+    /* Wish Boost Text in Classic Card */
+    .wish-boost-text {
+      display: block;
+      margin-top: 8px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ffffff 0%, #add8e6 50%, #ffffff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 100%;
+      animation: subtleShine 3s ease-in-out infinite;
+      text-shadow: 
+        0 0 2px rgba(173, 216, 230, 0.5),
+        0 0 4px rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes subtleShine {
+      0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+      }
+      50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.1);
+      }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      /* Hide line break on mobile - text should be inline */
+      .mobile-break {
+        display: none;
+      }
+
+      /* Move wish boost text up by 1 line on mobile */
+      .wish-boost-text {
+        margin-top: 0px;
+      }
+
+      .game-modes {
+        grid-template-columns: 1fr;
+        gap: clamp(15px, 4vw, 20px);
+      }
+
+      .game-card {
+        padding: clamp(15px, 4vw, 20px) clamp(12px, 3vw, 15px);
+      }
+
+      .game-card.classic {
+        padding: clamp(10px, 2vw, 14px) clamp(10px, 2vw, 12px);
+      }
+
+      /* Move classic card up by 1 more line on mobile */
+      .game-card.classic {
+        margin-top: -5em;
+      }
+      
+      /* Move PvP card down by 1 more line on mobile */
+      .game-card.pvp {
+        margin-top: 2em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px 10px;
+      }
+
+      .game-card {
+        padding: 15px 12px;
+      }
+
+      .game-card.classic {
+        padding: 10px 10px;
+      }
+
+      .play-btn {
+        width: 36px;
+        height: 36px;
+      }
+
+      /* Even spacing for smaller devices (Samsung 7, S8, etc.) - move up by 1 more line */
+      .game-card.classic {
+        margin-top: -5em;
+      }
+      
+      .game-card.pvp {
+        margin-top: 3em;
+      }
+    }
+
+    @media (max-width: 400px) {
+      /* Samsung S8 and similar devices (around 360px) - move up by 1 more line */
+      .game-card.classic {
+        margin-top: -5em;
+      }
+      
+      .game-card.pvp {
+        margin-top: 4.5em;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .container {
+        padding: 12px 8px;
+      }
+
+      .game-card {
+        padding: 12px 10px;
+      }
+
+      .game-card.classic {
+        padding: 8px 8px;
+      }
+
+      .title h1 {
+        font-size: 1.5rem;
+      }
+
+      .title p {
+        font-size: 0.8rem;
+      }
+
+      /* Even spacing for very small devices - move up by 1 more line */
+      .game-card.classic {
+        margin-top: -5em;
+      }
+      
+      .game-card.pvp {
+        margin-top: 5em;
+      }
+    }
+
+    /* Additional breakpoint for medium tablets and small phones (covers Samsung 7, S8 and similar) */
+    /* Note: This applies to 480px-640px range, smaller devices override below */
+    @media (max-width: 640px) and (min-width: 481px) {
+      /* Ensure spacing is applied for devices like Samsung S8 (typically 360px-480px) - move up by 1 more line */
+      .game-card.classic {
+        margin-top: -5em;
+      }
+      
+      .game-card.pvp {
+        margin-top: 3em;
+      }
+    }
+
+    /* Desktop only: Move viewport up so "Shooting Star" title is 2 lines from top */
+    @media (min-width: 900px) {
+      .container {
+        padding-top: 0 !important; /* Move everything up by 2 lines (was 2em) */
+      }
+      /* Move Classic card up by 2 more lines */
+      .game-card.classic {
+        margin-top: -9em !important; /* Move up by 2 more lines from -7em */
+        padding: 14px 14px !important; /* Reduced padding for desktop */
+      }
+      /* Move PvP card down by 1 more line */
+      .game-card.pvp {
+        margin-top: -1em !important; /* Move down by 1 more line from -2em */
+      }
+      /* Position shooting star down by 2.5 lines to sit between the two game mode cards */
+      .game-star-container {
+        top: calc(50% + 2.5em) !important; /* Moved down by 2.5 lines from center */
+      }
+    }
+  </style>
+  </head>
+<body>
+  <!-- Game night sky background -->
+  <div class="game-night-sky"></div>
+  
+  <!-- Twinkling background stars from game -->
+  <div id="gameStars"></div>
+  
+  <!-- Animated stars background - appears first -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Game shooting star container - positioned between game mode blocks -->
+  <div class="game-star-container">
+    <div class="game-star-wrap">
+      <div class="game-tail silver"></div>
+      <div class="game-tail t1"></div>
+      <div class="game-tail t2"></div>
+      <div class="game-tail t3"></div>
+      <div class="game-tail t4"></div>
+      <div class="game-star">⭐</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="title" id="title">
+      <h1>Shooting Star</h1>
+      <p><span style="font-size: 1.1em;">Make a wish</span>... on a shooting star! ✨</p>
+    </div>
+
+    <div class="modes-description" id="modesDescription">2 modes 2 ways to win</div>
+
+    <div class="choose-adventure-text" id="chooseAdventure">Choose your adventure</div>
+
+    <div class="game-modes">
+      <!-- Classic Mode Card -->
+      <div class="game-card classic" id="classicCard" onclick="window.location.href='shooting_star_classic_FINAL.html'">
+        <h2 id="classicHeading">Classic</h2>
+        <p id="classicContent">Bet to launch the shooting star.<br class="mobile-break"> Watch your money grow. Cash out before the star burns out to collect your win. <span class="wish-boost-text">Look out for the <span class="wish-boost-highlight">Wish Boost</span> notice; & chose your reward!</span></p>
+        <a href="shooting_star_classic_FINAL.html" class="play-btn" id="classicBtn"></a>
+      </div>
+
+      <!-- PvP Mode Card -->
+      <div class="game-card pvp" id="pvpCard" onclick="window.location.href='shooting_star_pvp_FINAL.html'">
+        <span class="badge" id="pvpBadge">NEW</span>
+        <h2 id="pvpHeading">Player vs Player</h2>
+        <p id="pvpContent">Compete in real-time by cashing out last. Win the pot if the star has not crashed. Hang on, this is a wild ride!</p>
+        <a href="shooting_star_pvp_FINAL.html" class="play-btn" id="pvpBtn"></a>
+      </div>
+    </div>
+
+    <!-- Don't show again checkbox -->
+    <div class="dont-show-again" id="dontShowAgainContainer" style="margin-top: 2em;">
+      <label style="display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; color: rgba(255, 255, 255, 0.85); font-size: clamp(0.85rem, 2vw, 1rem);">
+        <input type="checkbox" id="dontShowAgain" style="width: 18px; height: 18px; cursor: pointer; accent-color: #00e5e5;">
+        <span>Got it. Do not show me this again</span>
+      </label>
+    </div>
+  </div>
+
+  <script>
+    // Generate game background stars (from classic version)
+    function createGameStars() {
+      const gameStarsContainer = document.getElementById('gameStars');
+      const positions = [
+        {top: '14%', left: '8%', size: ''},
+        {top: '26%', left: '86%', size: ''},
+        {top: '52%', left: '20%', size: ''},
+        {top: '68%', left: '74%', size: ''},
+        {top: '82%', left: '14%', size: ''},
+        {top: '18%', left: '45%', size: ''},
+        {top: '36%', left: '30%', size: ''},
+        {top: '60%', left: '10%', size: 'small'},
+        {top: '72%', left: '56%', size: 'small'},
+        {top: '40%', left: '70%', size: 'small'},
+        {top: '12%', left: '25%', size: 'tiny'},
+        {top: '22%', left: '62%', size: 'tiny'},
+        {top: '33%', left: '15%', size: 'tiny'},
+        {top: '44%', left: '83%', size: 'tiny'},
+        {top: '50%', left: '48%', size: 'tiny'},
+        {top: '65%', left: '37%', size: 'tiny'},
+        {top: '28%', left: '5%', size: 'tiny'},
+        {top: '76%', left: '24%', size: 'tiny'},
+        {top: '58%', left: '92%', size: 'tiny'},
+        {top: '16%', left: '78%', size: 'tiny'}
+      ];
+      
+      positions.forEach(pos => {
+        const star = document.createElement('div');
+        star.className = 'bgstar' + (pos.size ? ' ' + pos.size : '');
+        star.textContent = '✦';
+        star.style.top = pos.top;
+        star.style.left = pos.left;
+        gameStarsContainer.appendChild(star);
+      });
+    }
+
+    // Generate random stars - appears immediately
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      const starCount = 500; // Increased from 200 to 500
+      
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        // Mix of white and blue stars
+        const isBlue = Math.random() < 0.3; // 30% blue stars
+        star.className = 'star' + (isBlue ? ' blue' : '');
+        star.textContent = '✦';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 4 + 's';
+        starsContainer.appendChild(star);
+      }
+    }
+
+    // Create swarming stars that move in patterns
+    function createSwarmingStars() {
+      const swarmCount = 150; // Lots of swarming stars
+      
+      for (let i = 0; i < swarmCount; i++) {
+        const star = document.createElement('div');
+        const size = Math.random() < 0.5 ? (Math.random() < 0.5 ? 'small' : 'tiny') : '';
+        // Mix of white and blue stars
+        const isBlue = Math.random() < 0.4; // 40% blue stars
+        star.className = 'swarm-star' + (size ? ' ' + size : '') + (isBlue ? ' blue' : '');
+        star.textContent = '✦';
+        
+        // Random starting position, avoiding text areas (center 40-60% of screen)
+        let left, top;
+        do {
+          left = Math.random() * 100;
+          top = Math.random() * 100;
+        } while (
+          (left > 35 && left < 65 && top > 30 && top < 70) || // Avoid center text area
+          (left > 20 && left < 80 && top > 40 && top < 60)    // Avoid game cards area
+        );
+        
+        star.style.left = left + '%';
+        star.style.top = top + '%';
+        star.style.animationDelay = Math.random() * 20 + 's';
+        star.style.animationDuration = (20 + Math.random() * 10) + 's, ' + (3 + Math.random() * 2) + 's';
+        document.body.appendChild(star);
+      }
+    }
+
+    // Create extra twinkling stars layer
+    function createExtraStars() {
+      const extraStarsContainer = document.createElement('div');
+      extraStarsContainer.className = 'extra-stars';
+      extraStarsContainer.id = 'extraStars';
+      document.body.appendChild(extraStarsContainer);
+      
+      const starCount = 300; // Additional twinkling stars
+      
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        // Mix of white and blue stars
+        const isBlue = Math.random() < 0.3; // 30% blue stars
+        star.className = 'extra-star' + (isBlue ? ' blue' : '');
+        star.textContent = '✦';
+        
+        // Random position, avoiding text areas
+        let left, top;
+        do {
+          left = Math.random() * 100;
+          top = Math.random() * 100;
+        } while (
+          (left > 35 && left < 65 && top > 30 && top < 70) || // Avoid center text area
+          (left > 20 && left < 80 && top > 40 && top < 60)    // Avoid game cards area
+        );
+        
+        star.style.left = left + '%';
+        star.style.top = top + '%';
+        star.style.animationDelay = Math.random() * 4 + 's';
+        star.style.animationDuration = (3 + Math.random() * 2) + 's';
+        extraStarsContainer.appendChild(star);
+      }
+    }
+
+    // Create gold star dust explosion
+    function createStarDust(x, y, count = 15) {
+      for (let i = 0; i < count; i++) {
+        const dust = document.createElement('div');
+        dust.className = 'star-dust';
+        dust.style.left = x + 'px';
+        dust.style.top = y + 'px';
+        dust.style.opacity = '1';
+        
+        const angle = (Math.PI * 2 * i) / count;
+        const distance = 30 + Math.random() * 40;
+        const duration = 0.8 + Math.random() * 0.4;
+        const endX = x + Math.cos(angle) * distance;
+        const endY = y + Math.sin(angle) * distance;
+        
+        document.body.appendChild(dust);
+        
+        dust.animate([
+          { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+          { transform: `translate(${endX - x}px, ${endY - y}px) scale(0)`, opacity: 0 }
+        ], {
+          duration: duration * 1000,
+          easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        }).onfinish = () => dust.remove();
+      }
+    }
+
+    // Create shooting star that transforms into heading
+    function createShootingStarTransform(headingId, cardId, delay) {
+      setTimeout(() => {
+        const heading = document.getElementById(headingId);
+        const card = document.getElementById(cardId);
+        if (!heading || !card) return;
+
+        const cardRect = card.getBoundingClientRect();
+        const headingRect = heading.getBoundingClientRect();
+        
+        // Calculate positions - star travels from left to right
+        const startX = -50;
+        const startY = cardRect.top + (headingRect.top - cardRect.top) + headingRect.height / 2;
+        const threeQuarterX = window.innerWidth * 0.75; // 3/4 across
+        const endX = headingRect.left + headingRect.width / 2;
+        const endY = startY;
+        
+        // Create star
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+        star.style.left = startX + 'px';
+        star.style.top = startY + 'px';
+        star.style.opacity = '1';
+        document.body.appendChild(star);
+
+        // Create trail
+        const trail = document.createElement('div');
+        trail.className = 'star-trail';
+        const distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+        trail.style.left = startX + 'px';
+        trail.style.top = startY + 'px';
+        trail.style.height = '4px';
+        trail.style.width = '0px';
+        trail.style.opacity = '1';
+        document.body.appendChild(trail);
+
+        // Animate star moving from left to right
+        const totalDuration = 2;
+        const startTime = Date.now();
+        let disintegrated = false;
+
+        function animate() {
+          const elapsed = (Date.now() - startTime) / 1000;
+          const progress = Math.min(elapsed / totalDuration, 1);
+          const easeProgress = 1 - Math.pow(1 - progress, 2); // Ease out
+
+          const currentX = startX + (endX - startX) * easeProgress;
+          const currentY = startY + (endY - startY) * easeProgress;
+
+          star.style.left = currentX + 'px';
+          star.style.top = currentY + 'px';
+
+          // Update trail length
+          const currentDistance = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+          trail.style.width = currentDistance + 'px';
+
+          // When star reaches 3/4 across, start disintegrating and transform into heading
+          if (progress >= 0.75 && !disintegrated) {
+            disintegrated = true;
+            
+            // Create star dust explosion
+            createStarDust(currentX, currentY, 20);
+            
+            // Start fading star
+            star.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            star.style.opacity = '0';
+            star.style.transform = 'scale(0)';
+            
+            // Fade trail
+            trail.style.transition = 'opacity 0.5s ease';
+            trail.style.opacity = '0';
+            
+            // Transform heading in
+            setTimeout(() => {
+              heading.classList.add('transform-in');
+            }, 100);
+            
+            // Remove star and trail
+            setTimeout(() => {
+              star.remove();
+              trail.remove();
+            }, 500);
+          }
+
+          if (progress < 1 && !disintegrated) {
+            requestAnimationFrame(animate);
+          }
+        }
+
+        animate();
+      }, delay);
+    }
+
+    // Sequential animation sequence
+    function startAnimations() {
+      // 1. Stars appear immediately (already done)
+      
+      // 2. Title swipes in like paint (after 0.5s)
+      setTimeout(() => {
+        document.getElementById('title').classList.add('animate-in');
+      }, 500);
+
+      // 2.5. Modes description appears (after 1.5s)
+      setTimeout(() => {
+        document.getElementById('modesDescription').classList.add('animate-in');
+      }, 1500);
+
+      // 3. Shooting star transforms into Classic heading (after 2s)
+      createShootingStarTransform('classicHeading', 'classicCard', 2000);
+
+      // 4. Classic content appears (after 3.5s)
+      setTimeout(() => {
+        document.getElementById('classicContent').classList.add('animate-content');
+        document.getElementById('classicBtn').classList.add('animate-btn');
+        document.getElementById('classicCard').classList.add('animate-in');
+      }, 3500);
+
+
+      // 5. Shooting star transforms into PvP heading (after 4.5s)
+      createShootingStarTransform('pvpHeading', 'pvpCard', 4500);
+
+      // 6. PvP content appears (after 6s)
+      setTimeout(() => {
+        document.getElementById('pvpContent').classList.add('animate-content');
+        document.getElementById('pvpBtn').classList.add('animate-btn');
+        document.getElementById('pvpBadge').classList.add('animate-badge');
+        document.getElementById('pvpCard').classList.add('animate-in');
+      }, 6000);
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      createGameStars();
+      createStars();
+      createSwarmingStars();
+      createExtraStars();
+      startAnimations();
+      
+      // Auto-play background music (Fireflies song) - Landing page segment (1-27 seconds loop)
+      const bgm = new Audio('assets/audio/Owl City - Fireflies (Said The Sky Remix).mp3');
+      bgm.preload = 'auto';
+      bgm.volume = 0.2; // 20% volume
+      bgm.loop = false; // We handle looping manually for the segment
+      
+      // Landing page audio segment: 1-27 seconds, loops continuously
+      var landingSegmentStart = 1;
+      var landingSegmentEnd = 27;
+      var segmentCheckInterval = null;
+      
+      function playLandingSegment() {
+        bgm.currentTime = landingSegmentStart;
+        
+        // Check periodically if we've reached the end of the segment
+        if (segmentCheckInterval) {
+          clearInterval(segmentCheckInterval);
+        }
+        
+        segmentCheckInterval = setInterval(function() {
+          if (bgm.paused) return;
+          
+          // If we've reached or passed the end, loop back to start
+          if (bgm.currentTime >= landingSegmentEnd) {
+            bgm.currentTime = landingSegmentStart;
+          }
+        }, 100); // Check every 100ms
+        
+        // Try to play if not already playing
+        if (bgm.paused) {
+          bgm.play().catch(function(){});
+        }
+      }
+      
+      // Try to play immediately (may require user interaction on some browsers)
+      function tryPlay() {
+        playLandingSegment();
+      }
+      
+      // Try to play after a short delay
+      setTimeout(tryPlay, 500);
+      
+      // Also try on any user interaction (click, touchstart, keydown)
+      ['click', 'touchstart', 'keydown'].forEach(function(ev) {
+        document.addEventListener(ev, function() {
+          tryPlay();
+        }, { once: true });
+      });
+      
+      // Store reference globally so game pages can continue playing it
+      window.landingBgm = bgm;
+    });
+
+    // Handle resize for responsive adjustments
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        // Recalculate positions if needed
+      }, 250);
+    });
+
+    // Add click animation to cards
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'A') {
+          const link = this.querySelector('.play-btn');
+          if (link) {
+            window.location.href = link.href;
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

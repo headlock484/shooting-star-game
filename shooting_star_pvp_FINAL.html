@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<style id="bv-disable-classic-intro-in-pvp">
+/* PvP: permanently disable Classic intro popup */
+#introPopup,
+.popup.intro,
+.intro.popup,
+.intro[class*="classic"],
+.popup.fadeout.intro {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+</style>
+
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Shooting Star — PvP (Clean Build) • v6-safe</title>
+<style>
+  :root{ --turq:#00e5e5; --navy:#0b1e3b; --navy2:#0a2a58; --gold:#ffd700; --text:#e9f2ff; }
+  html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(135deg,#0c0c1e,#16213e);color:#fff}
+  .container{max-width:1100px;margin:0 auto;padding:14px}
+  .header{display:flex;flex-direction:column;align-items:center;margin:10px 0 12px}
+  .logoBox{position:relative;padding:14px 18px 10px;border-radius:12px;box-shadow:0 0 0 2px rgba(0,210,255,.12) inset,0 0 22px rgba(0,210,255,.45),0 0 64px rgba(0,210,255,.25)}
+  .logoBox::before{content:"";position:absolute;inset:0;border-radius:12px;border:2px solid rgba(0,210,255,.85);box-shadow:0 0 14px rgba(0,210,255,.8),0 0 28px rgba(0,210,255,.45),0 0 64px rgba(0,210,255,.25);pointer-events:none}
+  .logoTitle{line-height:1.02;text-align:center;font-weight:900;letter-spacing:.4px}
+  .logoTitle .one{display:inline-block;font-size:1.7rem;background:linear-gradient(90deg,#ff7a18 0%,#ff9c2f 40%,#ff7a18 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 100%;animation:shine 3.6s linear infinite;white-space:nowrap}
+  @keyframes shine{0%{background-position:-120% 0}50%{background-position:0% 0}100%{background-position:120% 0}}
+  .logoWish{margin-top:4px;text-align:center;font-weight:800;color:var(--turq)}
+
+  .game-area{position:relative;height:60vh;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+  .night{position:absolute;inset:0;background:
+    radial-gradient(1200px 800px at 70% 0%, rgba(50,80,160,.25), transparent 55%),
+    radial-gradient(1000px 700px at 20% 20%, rgba(0,120,255,.18), transparent 60%),
+    linear-gradient(180deg,#040712 0%,#0b1631 45%,#15224b 100%);background-blend-mode: screen, screen, normal}
+  .sil{position:absolute;left:0;right:0;bottom:-1px;height:20%;width:100%;pointer-events:none;opacity:.55}
+
+  #status{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:18px;background:rgba(0,40,60,.45);border:1px solid rgba(0,229,229,.35);color:var(--turq);font-weight:800;white-space:nowrap;z-index:20}
+  #headCount{position:absolute;top:56px;right:10px;min-width:28px;height:28px;border-radius:999px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;background:rgba(0,229,229,.2);border:1px solid rgba(0,229,229,.45);color:var(--turq)}
+
+  #trailWrap{position:absolute; top:76px; left:0; z-index:30; display:flex; flex-direction:column; gap:6px; max-height:60%; overflow:auto; padding:0; align-items:flex-start;}
+  #trailWrap .trailItem{display:inline-block; min-width:42px; padding:2px 6px; text-align:left; font:800 11px/1 system-ui; color:#dfe9ff; background:rgba(10,20,40,.45); border:1px solid rgba(255,255,255,.12); border-radius:8px; text-shadow:0 0 4px rgba(0,0,0,.5);}
+
+  #starWrap{position:absolute;top:50%;left:-50px;transform:translateY(-50%);opacity:1}
+  #starWrap.clean{opacity:0}
+  #star{font-size:30px;position:relative;z-index:2;filter:drop-shadow(0 0 6px rgba(255,255,180,.85)) drop-shadow(0 0 14px rgba(255,220,120,.45));}
+  .tail{position:absolute;right:30px;top:50%;transform:translateY(-50%);height:3.5px;border-radius:3px;opacity:.95;pointer-events:none}
+  .tail.orange{width:5.4cm;background:linear-gradient(90deg,transparent 0%, rgba(255,180,60,.9) 20%, rgba(255,145,0,.75) 55%, transparent 100%);filter:blur(.2px) drop-shadow(0 0 6px rgba(255,153,0,.45));}
+  .tail.pink  {width:5.0cm;top:calc(50% - 4px);background:linear-gradient(90deg,transparent 0%, rgba(255,120,180,.95) 25%, rgba(250,70,160,.75) 60%, transparent 100%);filter:blur(.3px) drop-shadow(0 0 7px rgba(255,120,200,.35));opacity:.9}
+  .tail.red   {width:4.6cm;top:calc(50% + 4px);background:linear-gradient(90deg,transparent 0%, rgba(255,90,90,.95) 30%, rgba(220,30,30,.75) 65%, transparent 100%);filter:blur(.25px) drop-shadow(0 0 7px rgba(255,70,70,.35));opacity:.92}
+  .tail.blue  {width:5.6cm;top:calc(50% + 8px);background:linear-gradient(90deg,transparent 0%, rgba(120,190,255,.95) 25%, rgba(60,150,255,.75) 60%, transparent 100%);filter:blur(.25px) drop-shadow(0 0 7px rgba(60,160,255,.35));opacity:.95}
+  #starWrap.edge .tail{animation:flow 1.2s ease-in-out infinite}
+  @keyframes flow{0%{filter:blur(.25px) drop-shadow(0 0 6px rgba(255,255,255,.25));opacity:.95}50%{filter:blur(.35px) drop-shadow(0 0 10px rgba(255,255,255,.35));opacity:.85}100%{filter:blur(.25px) drop-shadow(0 0 6px rgba(255,255,255,.25));opacity:.95}}
+  .shimmer{animation:sh 1.2s ease-in-out infinite}
+  @keyframes sh{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,210,.9)) drop-shadow(0 0 12px rgba(255,220,150,.45))}50%{filter:drop-shadow(0 0 10px rgba(255,255,230,.95)) drop-shadow(0 0 18px rgba(255,220,150,.55))}}
+
+  #mult{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);font-size:1.05rem;font-weight:900;color:var(--turq);text-shadow:0 0 14px rgba(0,229,229,.35);opacity:0;z-index:5}
+
+  .panel{margin-top:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
+  .row{display:flex;gap:10px;align-items:center}
+  label{font-size:.85rem;opacity:.85}
+  input[type=number]{width:110px;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff}
+  .btn{flex:1;padding:12px;border:0;border-radius:10px;font-weight:900;cursor:pointer}
+  .primary{background:linear-gradient(45deg,#ff8c00,#ff6b35);color:#fff}
+  .danger{background:linear-gradient(45deg,#dc2626,#b91c1c);color:#fff}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* Subtle white border on bet button */
+  #betBtn{border:1px solid rgba(255,255,255,0.3)!important}
+
+  .redDust{position:absolute;width:2px;height:2px;border-radius:50%;background:radial-gradient(circle,#ff4444 0%,#ff6666 50%,#ff0000 100%);
+    box-shadow:0 0 6px rgba(255,68,68,.9),0 0 10px rgba(255,68,68,.6);animation:burst 1.4s ease-out forwards;pointer-events:none}
+  @keyframes burst{0%{opacity:1;transform:translate(0,0) scale(1)}60%{opacity:.9;transform:translate(var(--bx),var(--by)) scale(1.2)}100%{opacity:0;transform:translate(var(--fx),var(--fy)) scale(.45)}}
+  .cashTag{position:absolute;background:rgba(255,68,68,.92);color:#fff;border:2px solid #ff4444;border-radius:12px;padding:4px 8px;font-weight:800;font-size:12px;white-space:nowrap;animation:tag 2.2s ease-out forwards;z-index:100}
+  @keyframes tag{0%{opacity:0;transform:translateY(-10px) scale(.9)}15%{opacity:1;transform:translateY(0) scale(1.06)}85%{opacity:1}100%{opacity:0}}
+
+  .lobby{margin-top:10px; display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+  @media (max-width: 740px){ .lobby{ grid-template-columns: 1fr; } }
+  .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px}
+  .card h3{margin:0 0 6px;font-size:1rem;color:#7dd3fc;font-weight:900}
+  .prow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
+  .prow:last-child{border-bottom:0}
+  .pname{color:#ffd280;font-weight:800}
+  .pmult{display:flex;align-items:center;gap:8px;color:#9ad9ff}
+  .burst{width:22px;height:22px;border-radius:50%;display:inline-flex;justify-content:center;align-items:center;background:radial-gradient(circle at 30% 30%,#ff4d4d,#d70000 70%);color:#fff;font-size:11px;font-weight:800;box-shadow:0 0 8px rgba(255,77,77,.8)}
+  .muted{opacity:.7}
+
+  /* Winner toast */
+  #winToast{
+    position:absolute; top:20%; left:50%; transform:translate(-50%,-10px) scale(.96);
+    padding:16px 22px; text-align:center; z-index:1200;
+    background:linear-gradient(180deg, rgba(0,40,60,.9), rgba(0,30,50,.85));
+    border:1px solid rgba(0,229,229,.55); border-radius:14px;
+    box-shadow:0 14px 40px rgba(0,0,0,.45), 0 0 24px rgba(0,229,229,.25) inset;
+    opacity:0; transition:opacity .35s ease, transform .35s ease;
+  }
+  #winToast.show{ opacity:1; transform:translate(-50%,0) scale(1); }
+  #winToast .toastTitle{
+    font-weight:900; letter-spacing:.6px; margin-bottom:4px;
+    background:linear-gradient(90deg,#ffb347 0%, #ffd700 50%, #ffb347 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    font-size:1.4rem; text-shadow:0 0 10px rgba(255,215,0,.35);
+  }
+  #winToast .toastSub{
+    font-weight:800; color:var(--turq); opacity:.95; font-size:.95rem;
+  }
+
+
+  .goldFall{position:absolute;width:2px;height:2px;border-radius:50%;
+    background:radial-gradient(circle,#fff 0,#ffd700 60%,rgba(255,215,0,0));
+    box-shadow:0 0 6px rgba(255,215,0,.85),0 0 10px rgba(255,215,0,.55);
+    animation:fall 1.8s ease-in forwards}
+  @keyframes fall{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(160px)}}
+
+
+  .toast{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);text-align:center;font-weight:900;z-index:900;animation:toastIn .25s ease-out}
+  .toast .winline{font-size:1.25rem;color:#fff;text-shadow:0 0 14px rgba(0,229,229,.35),0 0 6px rgba(255,255,255,.35)}
+  .toast .wish{display:block;margin-top:6px;font-size:1.05rem;background:linear-gradient(90deg,#ff8a00,#ffd54f,#36e6ff,#9c27b0,#ff8a00);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:glow 2.8s linear infinite}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,-50%) scale(.86)}to{opacity:1}}
+  @keyframes glow{0%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}
+  .wishSpark{position:absolute;width:2px;height:2px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,255,255,.2));animation:wishFall 1.8s ease-out forwards;opacity:.9}
+  @keyframes wishFall{0%{transform:translateY(0) translateX(0);opacity:1}
+
+
+  .betBox{position:absolute;left:10px;bottom:10px;display:none;flex-direction:column;gap:8px;min-width:148px;z-index:10;transform:scale(.85)}
+  .pill{background:rgba(0,0,0,.85);border:1px solid rgba(255,152,0,.55);border-radius:8px;padding:8px 12px;text-align:center;font-weight:800}
+  #betPill{color:#ffd699} #winPill{color:#ffbb66}
+
+
+  #betBox{display:none!important}
+  #betPill{display:none!important}
+</style>
+<style>
+/* FORCE a clearly visible violet layer + stars AS TOPMOST CHILD of .game-area */
+.game-area{ position:relative !important; }
+#pvpTopLayer{
+  position:absolute !important; inset:0 !important; pointer-events:none !important;
+  z-index: 999999 !important;
+  display:block !important;
+}
+#pvpTopLayer .tint{
+  position:absolute; inset:0; opacity:.30;
+  background:
+    linear-gradient(180deg,
+      rgba(252, 212, 255, 0.85) 0%,
+      rgba(230, 160, 255, 0.62) 25%,
+      rgba(170, 120, 230, 0.50) 60%,
+      rgba(40, 18, 80, 0.55) 100%),
+    radial-gradient(1400px 900px at 26% 18%, rgba(245, 190, 255, 0.55), rgba(0,0,0,0) 62%),
+    radial-gradient(1200px 820px at 78% 26%, rgba(200, 150, 255, 0.45), rgba(0,0,0,0) 58%);
+}
+#pvpTopLayer .stars{
+  position:absolute; inset:0;
+}
+#pvpTopLayer .star{
+  position:absolute; width:3px; height:3px; border-radius:50%;
+  background:#fff;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.8)) drop-shadow(0 0 12px rgba(255,200,255,.35));
+  opacity:0.0;
+  animation: twinkle 4.0s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%{opacity:0; transform:scale(.85)}
+  45%{opacity:.95; transform:scale(1)}
+  100%{opacity:0; transform:scale(.9)}
+}
+/* Optional slow drift of the whole star field for depth */
+#pvpTopLayer.drift .stars{
+  animation: drift 60s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{ transform: translate3d(-1.2%, -0.6%, 0) }
+  100%{ transform: translate3d( 1.2%,  0.6%, 0) }
+}
+</style><style>
+/* --- Adjustments: smaller stars, stronger violet base tint --- */
+#pvpTopLayer .tint{
+  background:
+    linear-gradient(180deg,
+      rgba(255, 220, 255, 0.92) 0%,
+      rgba(230, 160, 255, 0.75) 30%,
+      rgba(160, 90, 220, 0.65) 55%,
+      rgba(60, 20, 110, 0.55) 100%),
+    radial-gradient(1200px 800px at 25% 65%, rgba(220, 150, 255, 0.6), rgba(0,0,0,0) 80%),
+    radial-gradient(1200px 900px at 75% 70%, rgba(180, 100, 255, 0.5), rgba(0,0,0,0) 80%);
+  opacity: 0.38;
+}
+
+/* Smaller, elegant twinkling stars */
+#pvpTopLayer .star{
+  width:1.5px; height:1.5px;
+  background:#fff;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.7)) drop-shadow(0 0 6px rgba(255,200,255,.3));
+  opacity:0;
+  animation: twinkle 3.8s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%{opacity:0; transform:scale(.8)}
+  45%{opacity:.9; transform:scale(1)}
+  100%{opacity:0; transform:scale(.85)}
+}
+</style><style>
+#pageFadeOverlay {
+  position: fixed; inset: 0;
+  background: radial-gradient(120% 120% at 50% 30%, rgba(15,15,35,0.0), rgba(10,10,25,0.0) 45%, rgba(0,0,0,0.85) 100%),
+              linear-gradient(180deg, rgba(10,10,20,0.0), rgba(0,0,0,0.7));
+  pointer-events: none; z-index: 999999;
+  opacity: 0; 
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+  transform: translateZ(0); /* Hardware acceleration for smoother transition */
+  backdrop-filter: blur(2px); /* Additional masking */
+}
+#pageFadeOverlay.show { 
+  opacity: 1; 
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+#pageFadeOverlay.reveal { 
+  opacity: 0; 
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style><style id="bv-layout-down-1line">
+html, body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+}
+
+/* Move viewport down by 2 lines so headers are fully visible */
+.container, .embeddedStage, #area.game-area {
+  margin-top: 2em !important;
+  transform: none !important;
+}
+</style><style id="bv-active-mode-css">
+/* Active mode glow (same as <a href="shooting_star_classic_FINAL.html" title="Switch to Classic">Classic</a>) */
+  .bv-active-mode-glow {
+  color: #EAF2FF !important;
+  text-shadow:
+    0 0 6px #0066FF,
+    0 0 10px #0055FF,
+    0 0 14px #0044FF,
+    0 0 20px rgba(0,102,255,0.8);
+}
+</style><style>
+/* Drawer (fixed overlay page) */
+.drawer{position:fixed;inset:0;background:rgba(4,8,16,1) !important;backdrop-filter:blur(6px);display:none;z-index:9999999 !important}
+.drawer.open{display:block}
+.drawer.open ~ #pvpTopLayer,
+.drawer.open ~ * #pvpTopLayer,
+body:has(.drawer.open) #pvpTopLayer{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important}
+.drawer .dhead{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(14,28,56,1) !important;border-bottom:1px solid rgba(255,255,255,.12)}
+.drawer .dtitle{font-weight:800}
+.drawer .x{background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer}
+.drawer .body{max-width:920px;margin:12px auto;background:#0A2240 !important;border:2px solid #FF8C42;border-radius:12px;padding:12px;max-height:calc(100vh - 120px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.sectionTitle{margin:14px 0 8px;font-weight:800;color:#bfe9ff}
+.prow{display:flex;gap:12px;align-items:center;padding:8px 0}
+.pmult{margin-left:auto}
+.thin{border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)}
+
+/* Collapsible drawer sections */
+.drawerSection summary{
+  cursor:pointer;
+  user-select:none;
+  padding:6px 4px;
+  border-radius:6px;
+  transition:background .2s ease;
+}
+.drawerSection[open] summary{
+  background:rgba(255,255,255,.08);
+  color:#bfe9ff;
+}
+.drawerSection summary::-webkit-details-marker{display:none}
+.drawerSection summary::after{
+  content:"▸";
+  float:right;
+  transition:transform .2s ease;
+  opacity:.6;
+}
+.drawerSection[open] summary::after{
+  transform:rotate(90deg);
+  opacity:1;
+}
+
+/* Styled separators in drawer */
+.drawer .thin{
+  border:0; height:2px; margin:10px 0;
+  background: linear-gradient(90deg, rgba(33,150,243,.15), rgba(255,152,0,.15));
+  box-shadow: 0 0 8px rgba(33,150,243,.10), 0 0 8px rgba(255,152,0,.10) inset;
+}
+
+/* === Settings (Drawer) Professional Color Pass + Sticky Footer === */
+.drawer .dhead{
+  background:linear-gradient(90deg, rgba(14,28,56,.95), rgba(16,56,84,.92));
+  border-bottom:1px solid rgba(154,217,255,.18);
+}
+.drawer .body{
+  background:#0A2240;
+  max-height:calc(100vh - 120px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+.sectionTitle{
+  color:#bfe9ff;
+  text-shadow:0 0 8px rgba(134,206,255,.2);
+}
+.drawerSection summary{
+  background:linear-gradient(90deg, rgba(8,24,44,.35), rgba(12,36,64,.35));
+  border:1px solid rgba(154,217,255,.14);
+}
+.drawerSection[open] summary{
+  background:linear-gradient(90deg, rgba(10,40,70,.55), rgba(8,36,64,.55));
+  border-color:rgba(154,217,255,.26);
+}
+.drawer .thin{
+  background: linear-gradient(90deg, rgba(33,150,243,.18), rgba(255,152,0,.18));
+  box-shadow: 0 0 10px rgba(33,150,243,.10), 0 0 10px rgba(255,152,0,.10) inset;
+}
+
+/* Inputs */
+.drawer input[type="number"], .drawer input[type="range"], .drawer input[type="checkbox"]{
+  accent-color:#00e5e5;
+}
+.drawer input[type="number"]{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(154,217,255,.16);
+  color:#e9f2ff;
+  border-radius:8px;
+  padding:6px 8px;
+}
+.drawer input[type="number"]:focus{
+  outline:none; border-color:#00e5e5; box-shadow:0 0 0 2px rgba(0,229,229,.18);
+}
+
+.drawer .foot{
+  position:sticky; bottom:0; left:0; right:0;
+  padding:10px; margin-top:14px;
+  background:linear-gradient(180deg, rgba(10,20,40,.0), rgba(10,20,40,.75));
+  border-top:1px solid rgba(154,217,255,.14);
+  display:flex; justify-content:flex-end;
+}
+.drawer .foot .btn{ background:#0b5b6e; border:1px solid rgba(255,255,255,.25); color:#fff; font-weight:800; border-radius:10px; }
+.drawer .btn{padding:8px 16px;border-radius:8px;background:#145a7a;border:1px solid rgba(255,255,255,.25);color:#fff;font-weight:800;cursor:pointer}
+.bv-section-body{padding:8px 0}
+.bv-section-body h4{color:#7dd3fc;font-weight:800}
+.bv-section-body p{margin:8px 0;line-height:1.5}
+#historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+  max-height: 500px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.history-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: rgba(191, 233, 255, 0.6);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.history-item {
+  background: linear-gradient(135deg, rgba(10, 40, 70, 0.4), rgba(8, 36, 64, 0.35));
+  border: 1px solid rgba(154, 217, 255, 0.15);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+}
+.history-item:hover {
+  border-color: rgba(154, 217, 255, 0.3);
+  background: linear-gradient(135deg, rgba(10, 40, 70, 0.5), rgba(8, 36, 64, 0.45));
+  transform: translateY(-1px);
+}
+.history-item.history-win {
+  border-left: 3px solid #00e5e5;
+}
+.history-item.history-loss {
+  border-left: 3px solid #ff8c42;
+}
+.history-line-1,
+.history-line-2 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+.history-line-1 {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(154, 217, 255, 0.12);
+}
+.history-line-2 {
+  padding-top: 4px;
+}
+.history-round-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  flex-shrink: 0;
+}
+.history-round {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #bfe9ff;
+  letter-spacing: 0.3px;
+}
+.history-status {
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.status-win {
+  background: linear-gradient(135deg, rgba(0, 229, 229, 0.25), rgba(0, 200, 200, 0.2));
+  border: 1px solid rgba(0, 229, 229, 0.5);
+  color: #00e5e5;
+  box-shadow: 0 0 8px rgba(0, 229, 229, 0.2);
+}
+.status-loss {
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.25), rgba(255, 120, 50, 0.2));
+  border: 1px solid rgba(255, 140, 66, 0.5);
+  color: #ff8c42;
+  box-shadow: 0 0 8px rgba(255, 140, 66, 0.2);
+}
+.history-detail-item.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.history-detail-item.inline.highlight {
+  margin-left: auto;
+}
+.detail-label {
+  font-size: 0.75rem;
+  color: rgba(191, 233, 255, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.detail-label.turquoise,
+#drawer .detail-label.turquoise,
+.drawer .detail-label.turquoise,
+#historyList .detail-label.turquoise,
+.history-item .detail-label.turquoise {
+  color: #00e5e5 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 6px rgba(0, 229, 229, 0.6) !important;
+}
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e9f2ff;
+}
+.detail-value.value-win {
+  color: #00e5e5;
+  text-shadow: 0 0 6px rgba(0, 229, 229, 0.3);
+}
+.detail-value.value-loss {
+  color: #ff8c42;
+  text-shadow: 0 0 6px rgba(255, 140, 66, 0.3);
+}
+@media (max-width: 640px) {
+  #historyList {
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .history-item {
+    padding: 12px 14px;
+  }
+  .history-line-1,
+  .history-line-2 {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .history-detail-item.inline.highlight {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+</style>
+<style id="bv-tip-css">
+.bv-mode-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+font-size:15px;font-weight:800;line-height:1;background:#FF8E2B;color:#0A2240;margin-left:8px;cursor:pointer;user-select:none;vertical-align:middle;
+transition:box-shadow .18s ease, transform .12s ease;touch-action:manipulation;z-index:1200;}
+.bv-mode-i::after{content:"";position:absolute;left:-10px;right:-10px;top:-10px;bottom:-10px;}
+.bv-mode-i:hover{box-shadow:0 0 12px rgba(255,142,43,.6);transform:scale(1.08);}
+.bv-mode-i:active{transform:scale(0.95);}
+.bv-mode-tip{position:fixed;z-index:10000;max-width:min(560px,98vw);background:#0A2240;color:#FFFFFF;border-radius:10px;border:2px solid #FF8E2B;
+padding:12px 14px;box-shadow:0 14px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transform:translateY(6px);
+transition:opacity .18s ease, transform .12s ease;}
+.bv-mode-tip.bv-open{opacity:1;transform:translateY(0);pointer-events:auto;}
+.bv-mode-tip .line{opacity:0;margin:10px 0;line-height:1.25;}
+.bv-mode-tip .line.last{display:inline-block;position:relative;padding-bottom:4px;width:max-content;}
+.bv-mode-tip .line.last .u{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:#2EC4B6;border-radius:2px;opacity:0;}
+@keyframes bvFade{to{opacity:1;}}
+@media (max-width:640px){
+  .bv-mode-tip{max-width:min(620px,96vw);}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<div style="text-align:left; color:white; font-size:20px; font-family:inherit; margin-top:-37px; width:fit-content;"><a href="shooting_star_classic_FINAL.html" style="color:white; text-decoration:none; border-bottom:1px dotted rgba(255,255,255,.65); cursor:pointer;" title="Open Classic ">Classic</a><span> | </span><span>PvP</span><span class="bv-mode-i" id="pvpInfoIcon" aria-label="More info" role="button" tabindex="0">i</span></div>
+<div class="logoBox">
+<div class="logoTitle"><span class="one">Shooting Star</span></div>
+<div class="logoWish">Make a wish..</div>
+</div>
+<button id="openDrawer" style="position:fixed;top:14px;right:14px;width:40px;height:40px;border-radius:50%;
+           background:radial-gradient(circle at 45% 40%, #c8ecff,#3dc2da 70%);
+           box-shadow:0 6px 14px rgba(0,180,200,.35);border:2px solid rgba(255,255,255,.5);
+           display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1500;
+           color:#05202a;font-size:20px;line-height:1" title="Settings &amp; Need to knows">⚙️</button></div>
+<div class="game-area" id="area">
+<div class="night"></div>
+<svg aria-hidden="true" class="sil" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,20 L0,14 C10,12 15,8 22,11 C28,13 33,9 40,12 C48,15 52,10 60,12 C70,14 78,9 85,12 C92,14 96,12 100,13 L100,20 Z" fill="#000"></path>
+</svg>
+<div id="status">Waiting for 3rd player to join…</div>
+<div id="headCount" title="Players this round">2</div>
+<div aria-label="Recent crash multipliers" id="trailWrap"></div>
+<div aria-atomic="true" aria-live="polite" hidden="" id="winToast" role="status">
+<div class="toastTitle">YOU WIN!</div>
+<div class="toastSub">Make a wish…</div>
+</div>
+<div class="clean" id="starWrap">
+<div class="tail orange"></div><div class="tail pink"></div><div class="tail red"></div><div class="tail blue"></div>
+<div id="star">⭐</div>
+</div>
+<div id="mult">1.00x</div>
+<div class="betBox" id="betBox">
+<div class="pill" id="betPill">Bet: SZ5</div>
+<div class="pill" id="winPill">Pot: SZ0</div>
+</div>
+<div class="bgstar" style="position:absolute;top:14%;left:8%;color:rgba(255,215,0,.65);font-size:5px">✦</div>
+<div class="bgstar" style="position:absolute;top:26%;left:86%;color:rgba(255,215,0,.65);font-size:5px">✦</div>
+<div class="drift" id="pvpTopLayer"><div class="tint"></div><div class="stars"><span class="star" style="left:33%; top:7%;animation-duration:3.6s;animation-delay:0.2s;"></span><span class="star" style="left:74%; top:22%;animation-duration:3.5s;animation-delay:1.2s;"></span><span class="star" style="left:6%; top:11%;animation-duration:5.9s;animation-delay:2.3s;"></span><span class="star" style="left:73%; top:21%;animation-duration:4.5s;animation-delay:1.2s;"></span><span class="star" style="left:70%; top:14%;animation-duration:3.2s;animation-delay:1.8s;"></span><span class="star" style="left:52%; top:10%;animation-duration:3.9s;animation-delay:1.5s;"></span><span class="star" style="left:33%; top:19%;animation-duration:4.4s;animation-delay:0.3s;"></span><span class="star" style="left:69%; top:5%;animation-duration:6.0s;animation-delay:1.7s;"></span><span class="star" style="left:19%; top:34%;animation-duration:5.4s;animation-delay:0.3s;"></span><span class="star" style="left:91%; top:22%;animation-duration:6.0s;animation-delay:0.1s;"></span><span class="star" style="left:33%; top:17%;animation-duration:4.3s;animation-delay:3.0s;"></span><span class="star" style="left:64%; top:12%;animation-duration:4.4s;animation-delay:0.0s;"></span><span class="star" style="left:41%; top:34%;animation-duration:3.3s;animation-delay:2.9s;"></span><span class="star" style="left:58%; top:18%;animation-duration:5.6s;animation-delay:0.6s;"></span><span class="star" style="left:62%; top:22%;animation-duration:3.0s;animation-delay:0.4s;"></span><span class="star" style="left:61%; top:26%;animation-duration:3.1s;animation-delay:2.2s;"></span><span class="star" style="left:51%; top:27%;animation-duration:5.8s;animation-delay:0.7s;"></span><span class="star" style="left:48%; top:27%;animation-duration:5.8s;animation-delay:1.7s;"></span><span class="star" style="left:55%; top:15%;animation-duration:5.4s;animation-delay:1.6s;"></span><span class="star" style="left:77%; top:17%;animation-duration:3.2s;animation-delay:0.4s;"></span><span class="star" style="left:45%; top:29%;animation-duration:3.1s;animation-delay:0.7s;"></span><span class="star" style="left:77%; top:29%;animation-duration:3.3s;animation-delay:1.0s;"></span><span class="star" style="left:95%; top:21%;animation-duration:4.2s;animation-delay:2.0s;"></span><span class="star" style="left:17%; top:9%;animation-duration:5.0s;animation-delay:1.9s;"></span><span class="star" style="left:77%; top:27%;animation-duration:5.7s;animation-delay:2.3s;"></span><span class="star" style="left:15%; top:24%;animation-duration:4.4s;animation-delay:1.4s;"></span><span class="star" style="left:30%; top:7%;animation-duration:3.9s;animation-delay:0.6s;"></span><span class="star" style="left:92%; top:30%;animation-duration:5.4s;animation-delay:0.0s;"></span><span class="star" style="left:9%; top:34%;animation-duration:4.9s;animation-delay:1.1s;"></span><span class="star" style="left:6%; top:35%;animation-duration:6.0s;animation-delay:0.3s;"></span><span class="star" style="left:21%; top:38%;animation-duration:4.1s;animation-delay:1.8s;"></span><span class="star" style="left:60%; top:42%;animation-duration:5.6s;animation-delay:0.1s;"></span><span class="star" style="left:12%; top:33%;animation-duration:5.2s;animation-delay:1.7s;"></span><span class="star" style="left:30%; top:35%;animation-duration:3.6s;animation-delay:2.4s;"></span><span class="star" style="left:78%; top:37%;animation-duration:4.4s;animation-delay:1.9s;"></span><span class="star" style="left:95%; top:35%;animation-duration:3.1s;animation-delay:0.3s;"></span></div></div></div>
+<div class="panel">
+<div class="row" style="margin-bottom:8px">
+<label>Stake (PvP)</label>
+<input disabled="" id="stake" type="number" value="5"/>
+<div style="margin-left:auto;font-weight:900">Balance: SZ<span id="bal">1000</span></div>
+</div>
+<div class="row">
+<button class="btn primary" id="betBtn">Place Bet</button>
+<button class="btn danger" disabled="" id="cashBtn">Cash Out</button>
+</div>
+</div>
+<div class="lobby">
+<div class="card">
+<h3>This round</h3>
+<div id="thisRound"></div>
+</div>
+<div class="card">
+<h3>Previous rounds (last 3)</h3>
+<div id="recent"></div>
+</div>
+<div class="card" style="grid-column:1/-1">
+<h3 id="playersTitle">Active players</h3>
+<div id="plist"></div>
+</div>
+</div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const S = {
+  balance: 1000, stake: 5, houseCut: 0.10,
+  roundNo: 1, youBet: false, youCashed: false, youCashMul: null,
+  players: [], totalPot: 0, recent: [], history: [], thisRoundLog: [],
+  allowJoinUntil: 1,
+  round: { active: false, startAt: 0, rate: 0.165, crashPoint: 2.0, nonce: 0, ended: false },
+  timers: { loop: null, countdown: null },
+  ui: { starEdge:false }
+};
+
+function setStatus(t){ $('status').textContent = t; }
+function setHeadCount(n){ $('headCount').textContent = n; }
+
+function updateHeadCount(){
+  const liveBots = S.players.filter(p=>!p.cashedOut).length;
+  const youLive = (S.youBet && !S.youCashed) ? 1 : 0;
+  setHeadCount(liveBots + youLive);
+}
+
+function resetStar(clean=true){
+  const w = $('starWrap');
+  w.style.left = '-50px';
+  if (clean) w.classList.add('clean');
+  w.classList.remove('edge');
+  S.ui.starEdge = false;
+  $('mult').textContent = '1.00x';
+  $('mult').style.opacity = '0';
+}
+
+/* FX */
+function redDustBurst(){
+  const area=$('area'),wrap=$('starWrap');
+  const sr=wrap.getBoundingClientRect(),ar=area.getBoundingClientRect();
+  const sx=sr.left-ar.left+10,sy=sr.top-ar.top+10;
+  for(let i=0;i<16;i++){
+    const d=document.createElement('div');
+    d.className='redDust';
+    d.style.left=(sx-60+Math.random()*40)+'px';
+    d.style.top=(sy+(Math.random()-.5)*30)+'px';
+    d.style.setProperty('--bx',(Math.random()-.5)*80+'px');
+    d.style.setProperty('--by',(Math.random()-.5)*50+'px');
+    d.style.setProperty('--fx',(Math.random()-.5)*40+'px');
+    d.style.setProperty('--fy',(Math.random()*80+40)+'px');
+    area.appendChild(d);
+    setTimeout(()=>d.remove(),1500);
+  }
+}
+
+function goldFallExplosion(){
+  const area=$('area'),wrap=$('starWrap');
+  const sr=wrap.getBoundingClientRect(),ar=area.getBoundingClientRect();
+  const sx=sr.left-ar.left+10,sy=sr.top-ar.top+10;
+  for(let i=0;i<48;i++){
+    const g=document.createElement('div');
+    g.className='goldFall';
+    g.style.left=(sx-40+Math.random()*80)+'px';
+    g.style.top=(sy-20+Math.random()*20)+'px';
+    area.appendChild(g);
+    setTimeout(()=>g.remove(),1900);
+  }
+}
+
+function cashTag(text){
+  const area=$('area'),wrap=$('starWrap');
+  const sr=wrap.getBoundingClientRect(),ar=area.getBoundingClientRect();
+  const t=document.createElement('div');
+  t.className='cashTag';
+  t.textContent=text;
+  t.style.left=(sr.left-ar.left-20)+'px';
+  t.style.top=(sr.top-ar.top-42)+'px';
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+
+
+/* ========= Win Toast ========= */
+function showWinToast(amount){
+  // Create ephemeral toast styled by reference CSS (.toast, .winline, .wish)
+  try {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = '<div class="winline">You won SZ' + amount + '</div><div class="wish">Make a wish…</div>';
+    document.body.appendChild(t);
+    // animate in via CSS keyframes; remove after 2.4s
+    setTimeout(()=>{ try{ t.remove(); }catch(e){} }, 2400);
+  } catch(e){ console.warn('toast error', e); }
+}
+function hideWinToast(){ /* not used in this minimal inline version */ }
+
+
+/* Lists */
+function renderThisRound(){
+  $('thisRound').innerHTML=S.thisRoundLog.map(ev=>
+    ev.type==='cash'
+      ?`<div class="prow"><div class="pname">${ev.who}</div><div class="pmult"><span class="burst">${ev.mul.toFixed(2)}x</span></div></div>`
+      :`<div class="prow"><div style="font-weight:900;color:#7dd3fc">Winner: ${ev.who}</div><div class="pmult"><span class="burst">${ev.mul.toFixed(2)}x</span></div></div>`
+  ).join('');
+}
+function renderPrevRounds(){
+  const last3=S.recent.slice(0,3);
+  $('recent').innerHTML=last3.map(x=>
+    `<div class="prow"><div><div style="font-weight:900;color:#7dd3fc">Round ${x.round} • ${x.you?'🏆 You won the pot':'Winner: '+x.winner}</div><div class="muted">Pot: SZ${x.pot}</div></div><div class="pmult"><span class="burst">${x.mul.toFixed(2)}x</span></div></div>`
+  ).join('') || '<div class="muted">No previous rounds yet.</div>';
+}
+function renderPlayersList(){
+  const act = S.players.filter(p => !p.cashedOut);
+  const youActive = (S.youBet && !S.youCashed);
+  const totalActive = act.length + (youActive ? 1 : 0);
+  const title = document.getElementById('playersTitle');
+  if (title) title.textContent = `Active players (${totalActive})`;
+  const rows = [];
+  if (youActive) rows.push({name: 'You', cashedOut: false, cashMul: null});
+  act.forEach(p => rows.push(p));
+  $('plist').innerHTML = rows.length ? rows.map(p=>`<div class="prow"><div class="pname">${p.name}</div><div class="pmult">${p.cashedOut?`<span class="burst">${p.cashMul.toFixed(2)}x</span>`:'Live'}</div></div>`).join('') : '<div class="muted">No active players.</div>';
+}
+
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  if (!list) return;
+  if(S.history.length === 0){
+    list.innerHTML = '<div class="history-empty">No bet history yet. Place your first bet to see results here.</div>';
+    return;
+  }
+  function fmt(n){return Number(n).toFixed(2)}
+  list.innerHTML=S.history.slice(0,50).map(r=>{
+    const cash = r.youCashed ? `${r.youMul.toFixed(2)}x` : '—';
+    const w = r.win>0 ? `+SZ${fmt(r.win)}` : (r.youCashed?'+SZ0':`−SZ${fmt(r.youStake)}`);
+    const isWin = r.win > 0;
+    return `
+      <div class="history-item ${isWin ? 'history-win' : 'history-loss'}">
+        <div class="history-line-1">
+          <div class="history-round-group">
+            <span class="history-round">Round ${r.round}</span>
+            <span class="history-status ${isWin ? 'status-win' : 'status-loss'}">${isWin ? 'WIN' : 'LOSS'}</span>
+          </div>
+          <div class="history-detail-item inline">
+            <span class="detail-label turquoise">Stake</span>
+            <span class="detail-value">SZ${fmt(r.youStake)}</span>
+          </div>
+          <div class="history-detail-item inline">
+            <span class="detail-label">Cash Out</span>
+            <span class="detail-value">${cash}</span>
+          </div>
+        </div>
+        <div class="history-line-2">
+          <div class="history-detail-item inline">
+            <span class="detail-label turquoise">Burn-out</span>
+            <span class="detail-value">${r.resultMul.toFixed(2)}x</span>
+          </div>
+          <div class="history-detail-item inline">
+            <span class="detail-label turquoise">Players</span>
+            <span class="detail-value">${r.playerCount || 0}</span>
+          </div>
+          <div class="history-detail-item inline highlight">
+            <span class="detail-label turquoise">Winnings</span>
+            <span class="detail-value ${isWin ? 'value-win' : 'value-loss'}">${w}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function lockPot(){
+  const participants = S.players.length + (S.youBet ? 1 : 0);
+  const pot=participants*5*(1-S.houseCut);
+  S.totalPot=Math.round(pot*100)/100;
+  try{document.getElementById('winPill').textContent='Pot: SZ'+S.totalPot;}catch(e){}
+}
+
+
+/* Bots */
+function randomName(){
+  const names=['Alex','Sam','Jordan','Casey','Riley','Morgan','Taylor','Avery','Kai','River','Sky','Rae'];
+  return names[Math.floor(Math.random()*names.length)]+Math.floor(Math.random()*100);
+}
+function makeBot(){ return {name:randomName(),stake:5,cashedOut:false,cashMul:null, aiTarget:null}; }
+function twoBots(){ return [makeBot(), makeBot()]; }
+function assignBotTargets(){
+  // Staggered targets for fast multiplier. All pre-crash for styling demo.
+  const bots = S.players.filter(p=>p.name!=='You');
+  const cp = S.round.crashPoint;
+  const MIN = 1.10;
+  const SAFE = Math.max(MIN, Math.min(cp - 0.18, 3.6));
+  const total = bots.length;
+  const nQuick = Math.max(1, Math.round(total * 0.45));
+  const nMed   = Math.max(1, Math.round(total * 0.35));
+  const nLate  = Math.max(1, total - nQuick - nMed);
+  function clamp(lo, hi, flo, fhi){ return (hi>lo)?[lo,hi]:[flo, Math.max(flo+0.06,fhi)]; }
+  const quickR = clamp(MIN, Math.min(1.40, SAFE - 0.40), MIN, Math.max(MIN+0.10, SAFE-0.38));
+  const medR   = clamp(Math.max(1.45, quickR[1] + 0.08), Math.min(2.00, SAFE - 0.26), Math.max(1.40, MIN), Math.max(1.60, SAFE-0.26));
+  const lateR  = clamp(Math.max(2.05, medR[1] + 0.08), Math.min(SAFE - 0.12, 3.60), Math.max(1.90, MIN), Math.max(2.10, SAFE-0.12));
+  const chosen=[];
+  function spacedPick(lo,hi){
+    for(let tries=0;tries<100;tries++){
+      const v = Number((lo + Math.random()*(hi-lo)).toFixed(2));
+      if (v < cp - 0.10 && chosen.every(x=>Math.abs(x - v) >= 0.14)) return v;
+    }
+    const v = Math.min(cp - 0.14, Math.max(MIN, hi));
+    return Number(v.toFixed(2));
+  }
+  const buckets=[];
+  for(let i=0;i<nQuick;i++) buckets.push(quickR);
+  for(let i=0;i<nMed;i++)   buckets.push(medR);
+  for(let i=0;i<nLate;i++)  buckets.push(lateR);
+  for(let i=buckets.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [buckets[i],buckets[j]]=[buckets[j],buckets[i]]; }
+  const Q=[],M=[],L=[]; for(let i=0;i<buckets.length;i++){ if(buckets[i]===quickR) Q.push(i); else if(buckets[i]===medR) M.push(i); else L.push(i); }
+  const order=[]; let qi=0,mi=0,li=0; while(qi<Q.length||mi<M.length||li<L.length){ if(qi<Q.length) order.push(Q[qi++]); if(mi<M.length) order.push(M[mi++]); if(li<L.length) order.push(L[li++]); if(mi<M.length) order.push(M[mi++]); }
+  bots.forEach((b, idx)=>{ const rIdx = (order[idx]!=null)?order[idx]:idx%buckets.length; const r=buckets[rIdx]; const t=spacedPick(r[0],r[1]); chosen.push(t); b.aiTarget=t; b.cashedOut=false; b.cashMul=null; });
+}
+
+/* Lobby / setup */
+function toLobby(){
+  resetStar(true);
+  try{document.getElementById('betBox').style.display='none';}catch(e){}S.players=twoBots();
+  // Reset player state first
+  S.youBet=false;S.youCashed=false;S.youCashMul=null;
+  S.thisRoundLog=[];
+  // Reset round state
+  S.round.active=false;
+  S.round.ended=false;
+  // Clear any running countdown timer
+  if(S.timers.countdown){ clearInterval(S.timers.countdown); S.timers.countdown=null; }
+  updateHeadCount();
+  // Make sure status is visible and set to waiting message
+  $('status').style.visibility='visible';
+  setStatus('Waiting for 3rd player to join…');
+  // Explicitly set button states - bet enabled, cash disabled
+  $('betBtn').disabled=false; 
+  $('cashBtn').disabled=true;
+  // Switch to waiting for player audio (1-28 seconds loop)
+  if (window.switchToWaitingForPlayerAudio) {
+    window.switchToWaitingForPlayerAudio();
+  }
+  renderPlayersList();renderPrevRounds();renderThisRound();
+}
+function startCountdown(){
+  // Prevent countdown from starting if round is active or ended
+  if(S.round.active || S.round.ended) return;
+  // Clear any existing countdown first
+  if(S.timers.countdown){ clearInterval(S.timers.countdown); S.timers.countdown=null; }
+  
+  let c=3;
+  setStatus(`Game starting in ${c}s`); lockPot();
+  S.timers.countdown=setInterval(()=>{
+    // Double-check round state on each tick
+    if(S.round.active || S.round.ended){
+      clearInterval(S.timers.countdown);
+      S.timers.countdown=null;
+      return;
+    }
+    c--;
+    if(c>=S.allowJoinUntil && S.players.length<8 && Math.random()<0.35){
+      S.players.push(makeBot()); renderPlayersList(); lockPot(); updateHeadCount();
+    }
+    if(c>0){ setStatus(`Game starting in ${c}s`); }
+    else { clearInterval(S.timers.countdown);S.timers.countdown=null; $('status').style.visibility='hidden'; $('starWrap').classList.remove('clean'); startRound(); }
+  },1000);
+}
+
+
+function neverAutoCashYou(){
+  // Defensive: ensure we never set You as cashed unless explicitly done via button.
+  if (S.youBet && !S.youCashed){
+    const youIdx = S.players.findIndex(p=>p.name==='You');
+    if (youIdx>-1 && S.players[youIdx].cashedOut){
+      // roll back any accidental marking by other logic
+      S.players[youIdx].cashedOut = false;
+      S.players[youIdx].cashMul = null;
+    }
+  }
+}
+
+/* Round control */
+async function startRound(){
+  if(S.round.active) return;
+  S.round.active=true; S.round.nonce += 1; S.round.ended=false;
+  
+  // Switch to star shooting audio segment
+  if (window.switchToStarShootingAudio) {
+    window.switchToStarShootingAudio();
+  }
+  
+  // Explicitly set button states based on current game state
+  if(S.youBet && !S.youCashed){
+    $('cashBtn').disabled=false;
+    $('betBtn').disabled=true;
+  } else {
+    $('cashBtn').disabled=true;
+    $('betBtn').disabled=false;
+  }
+  $('mult').style.opacity='1'; updateHeadCount();
+  // Crash point (mock)
+  const r=Math.random();
+  let x;
+  if (r<0.65) x=1.05+Math.random()*(1.80-1.05);
+  else if (r<0.93) x=1.80+Math.random()*(3.00-1.80);
+  else if (r<0.99) x=3.00+Math.random()*(5.00-3.00);
+  else x=5.00+Math.random()*(6.50-5.00);
+  x += (Math.random()-0.5)*0.02;
+  S.round.crashPoint = Math.max(1.05, Number(x.toFixed(2)));
+  S.round.rate = 0.070 + Math.random() * 0.015;
+  S.round.rate = 0.070 + Math.random() * 0.015; // ~ +1.00 every 4s
+  assignBotTargets();
+  S.round.startAt = performance.now();
+
+  const TICK = 40;
+  S.timers.loop = setInterval(()=>{
+    const now = performance.now();
+    const elapsed = (now - S.round.startAt) / 1000;
+    // Ease-in star velocity: quadratic over ~2s, then capped glide
+    const accel = Math.min(1, Math.max(0, elapsed / 2.0));
+    const speed = 1.0 + 10.0 * (accel*accel); // starts very slow, ramps up
+    const wrap=$('starWrap'); const areaW=$('area').offsetWidth;
+    const left=parseFloat(wrap.style.left||'-50'); const maxLeft=areaW-60;
+    if(left<maxLeft){ wrap.style.left=(Math.min(left+speed,maxLeft))+'px'; }
+
+    neverAutoCashYou();
+    const m = Math.exp(S.round.rate * elapsed);
+    $('mult').textContent = m.toFixed(2) + 'x';
+
+    // Ensure button states are correct during round
+    if(S.youBet && !S.youCashed && S.round.active){
+      $('cashBtn').disabled=false;
+      $('betBtn').disabled=true;
+    }
+
+    // Bots cash near their targets with jitter
+    S.players.forEach(p=>{
+      if(p.name!=='You' && !p.cashedOut && p.aiTarget && m >= p.aiTarget){
+        const jitter = 300 + Math.floor(Math.random()*600);
+        setTimeout(()=>{
+          if(p.name==='You') return; if(!p.cashedOut && Math.exp(S.round.rate * ((performance.now() - S.round.startAt)/1000)) >= p.aiTarget){
+            p.cashedOut=true; p.cashMul=p.aiTarget;
+            redDustBurst(); 
+            S.thisRoundLog.push({type:'cash',who:p.name,mul:p.cashMul});
+            renderThisRound(); renderPlayersList(); updateHeadCount();
+          }
+        }, jitter);
+      }
+    });
+
+    const everyone = S.players.length + (S.youBet?1:0);
+    const cashed = S.players.filter(p=>p.cashedOut).length + (S.youBet&&S.youCashed?1:0);
+    neverAutoCashYou(); if (cashed >= everyone){ if(!S.round.ended) setTimeout(()=>endRound(m), 120); return; }
+    neverAutoCashYou(); if (m >= S.round.crashPoint){ if(!S.round.ended){ $('mult').textContent = S.round.crashPoint.toFixed(2)+'x'; endRound(m); } }
+  }, TICK);
+}
+
+function endRound(maybeLastM){
+  if (S.round.ended) return; S.round.ended = true;
+  if(S.timers.loop){ clearInterval(S.timers.loop); S.timers.loop=null; }
+  // Clear countdown timer to prevent it from showing after crash - MUST be done first
+  if(S.timers.countdown){ 
+    clearInterval(S.timers.countdown); 
+    S.timers.countdown=null; 
+  }
+  S.round.active=false;
+  
+  // Switch back to other times audio segment
+  if (window.switchToOtherTimesAudio) {
+    window.switchToOtherTimesAudio();
+  }
+  
+  // Immediately set status to prevent any countdown message from showing
+  $('status').style.visibility='visible';
+  setStatus('Round ended');
+  goldFallExplosion();
+  const m = Math.max(maybeLastM || 1, S.round.crashPoint);
+  if (window.addCrashToTrail) addCrashToTrail(S.round.crashPoint);
+
+  const roundSnapshot=S.players.map(p=>({name:p.name,mul:p.cashedOut?p.cashMul:null,cashed:p.cashedOut}));
+  if(S.youBet){ const youEntry={name:'You',mul:S.youCashed?S.youCashMul:null,cashed:!!S.youCashed}; roundSnapshot.push(youEntry); }
+
+  const cashed=[]; S.players.forEach(p=>{ if(p.cashedOut) cashed.push({n:p.name,m:p.cashMul}); });
+  if(S.youBet && S.youCashed) cashed.push({n:'You',m:S.youCashMul});
+  if(cashed.length>0){ cashed.sort((a,b)=>b.m-a.m); const w=cashed[0];
+    if(w.n==='You'){ S.balance+=S.totalPot; S.thisRoundLog.push({type:'win',who:'You',mul:w.m}); S.recent.unshift({round:S.roundNo,winner:'You',mul:w.m,pot:S.totalPot,you:true}); showWinToast(S.totalPot); }
+    else { S.thisRoundLog.push({type:'win',who:w.n,mul:w.m}); S.recent.unshift({round:S.roundNo,winner:w.n,mul:w.m,pot:S.totalPot,you:false}); }
+  }else{ S.recent.unshift({round:S.roundNo,winner:'—',mul:m,pot:S.totalPot,you:false}); }
+
+  // Track history for bet history section
+  const playerCount = S.players.length + (S.youBet ? 1 : 0);
+  const win = (S.youBet && S.youCashed && cashed.length > 0 && cashed[0].n === 'You') ? S.totalPot : 0;
+  S.history.unshift({
+    round: S.roundNo,
+    resultMul: m,
+    youCashed: S.youCashed,
+    youMul: S.youCashMul || 0,
+    youStake: S.youBet ? S.stake : 0,
+    win: win,
+    playerCount: playerCount
+  });
+  if (S.history.length > 50) S.history.length = 50;
+  renderHistory();
+
+  renderPlayersList();renderPrevRounds();renderThisRound();
+  S.roundNo++; 
+  // Explicitly disable both buttons when round ends - toLobby will reset them properly
+  $('cashBtn').disabled=true; 
+  $('betBtn').disabled=true; 
+  setHeadCount(0);
+  setTimeout(toLobby,2400);
+}
+
+/* Controls */
+$('betBtn').addEventListener('click',()=>{
+  if(S.youBet||S.round.active) return;
+  if(5>S.balance){alert('Insufficient balance');return;}
+  S.balance-=5; $('bal').textContent=S.balance;
+  S.youBet=true; S.youCashed=false; S.youCashMul=null;  
+  
+  S.thisRoundLog=[]; renderPlayersList(); renderPrevRounds(); renderThisRound();
+  updateHeadCount();
+  
+  // Calculate total players (bots + human player)
+  const totalPlayers = S.players.length + (S.youBet ? 1 : 0);
+  
+  // Only start countdown if we have at least 3 players (2 bots + 1 human minimum)
+  if (totalPlayers >= 3) {
+    setStatus('All players ready!'); 
+    $('betBtn').disabled=true;
+    startCountdown();
+  } else {
+    // Still waiting for more players
+    setStatus('Waiting for more players to join…');
+    $('betBtn').disabled=false; // Keep bet button enabled in case player wants to wait
+  }
+});
+$('cashBtn').addEventListener('click',()=>{
+  if(!S.round.active||!S.youBet||S.youCashed) return;
+  const nowElapsed = (performance.now() - S.round.startAt) / 1000;
+  const m = Math.exp(S.round.rate * nowElapsed);
+  if (m >= S.round.crashPoint) return;
+  S.youCashed=true; S.youCashMul=Number(m.toFixed(2));
+  redDustBurst(); 
+  const youIdx=S.players.findIndex(p=>p.name==='You'); if(youIdx>-1){ S.players[youIdx].cashedOut=true; S.players[youIdx].cashMul=S.youCashMul; }
+  S.thisRoundLog.push({type:'cash',who:'You',mul:S.youCashMul});
+  renderThisRound(); $('cashBtn').disabled=true; $('betBtn').disabled=false; renderPlayersList(); updateHeadCount();
+});
+
+/* Overlay keep-alive */
+(function(){
+  function fmt(x){ return (Number(x||1)).toFixed(2) + 'x'; }
+  function tick(){
+    try{
+      const el = document.getElementById('mult');
+      if(!el) return;
+      if(S.round.active){
+        const elapsed = (performance.now() - S.round.startAt) / 1000;
+        neverAutoCashYou();
+    const m = Math.exp(S.round.rate * elapsed);
+        el.textContent = fmt(m);
+        el.style.opacity = '1';
+      }else{
+        el.textContent = '1.00x';
+        el.style.opacity = '0.6';
+      }
+    }catch(e){}
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* Trail */
+(function(){
+  window.addCrashToTrail = function(mul){
+    try{
+      if(!S._trail) S._trail = [];
+      S._trail.unshift(Number(mul).toFixed(2) + 'x');
+      if(S._trail.length > 200) S._trail.length = 200;
+      const wrap = document.getElementById('trailWrap'); if(!wrap) return;
+      wrap.innerHTML = '';
+      S._trail.forEach(v=>{
+        const span = document.createElement('span');
+        span.className = 'trailItem';
+        span.textContent = v;
+        wrap.appendChild(span);
+      });
+      wrap.scrollTop = 0;
+    }catch(e){}
+  };
+})();
+
+/* Boot */
+(function init(){
+  S.players=twoBots();
+  updateHeadCount();
+  setStatus('Waiting for 3rd player to join…');
+  $('bal').textContent=S.balance;
+  renderPlayersList();renderPrevRounds();renderThisRound();
+  renderHistory();
+  resetStar(true);
+  // Start with waiting for player audio (1-28 seconds loop)
+  if (window.switchToWaitingForPlayerAudio) {
+    window.switchToWaitingForPlayerAudio();
+  }
+})();
+</script>
+<div class="reveal" id="pageFadeOverlay"></div><script>
+(function(){
+  var FADE_OUT_MS = 250;
+  var FADE_IN_MS  = 300;
+
+  window.addEventListener('load', function(){
+    var ov = document.getElementById('pageFadeOverlay');
+    if(ov){ setTimeout(function(){ ov.classList.remove('show'); ov.classList.add('reveal'); }, 50); }
+  });
+
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a');
+    if(!a) return;
+    var text = (a.textContent||'').trim().toLowerCase();
+    if(text !== 'pvp' && text !== 'classic') return;
+
+    e.preventDefault();
+    var href = a.getAttribute('href');
+    var ov = document.getElementById('pageFadeOverlay');
+    
+    // Prevent scroll bounce by locking scroll position immediately
+    var scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + scrollY + 'px';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    
+    // Show overlay immediately to mask any jump
+    if(ov){
+      ov.style.opacity = '0';
+      ov.classList.remove('reveal');
+      ov.classList.add('show');
+      // Force immediate opacity update
+      requestAnimationFrame(function(){
+        ov.style.opacity = '1';
+        setTimeout(function(){ 
+          window.location.href = href; 
+        }, FADE_OUT_MS);
+      });
+    }else{
+      window.location.href = href;
+    }
+  }, true);
+})();
+</script>
+<script id="bv-autoplay-mp3">
+(function(){
+  var SRC = 'assets/audio/Owl City - Fireflies (Said The Sky Remix).mp3';
+  var bgm = new Audio(SRC);
+  bgm.preload = "auto";
+  bgm.volume = 0.2; // Default to 20%
+  bgm.loop = false; // We handle looping manually for segments
+  
+  // ===== AUDIO SEGMENT CONFIGURATION =====
+  // Configure time ranges for different game states
+  // 
+  // You can specify times in two formats:
+  // 1. Number of seconds (e.g., 30 for 30 seconds)
+  // 2. Time string format "M:SS" or "MM:SS" (e.g., "1:30" for 1 minute 30 seconds)
+  //
+  // PvP Audio Segments:
+  // - waitingForPlayer: 1-28 seconds (loops) - when waiting for 3rd player
+  // - flight: 35 seconds onwards (until crash) - during star flight
+  // - afterCrash: 1 second onwards (until star starts flight) - after crash
+  //
+  window.audioSegments = {
+    // Segment to play when waiting for 3rd player (loops 1-28 seconds)
+    waitingForPlayer: {
+      start: 1,   // Start at 1 second
+      end: 28     // End at 28 seconds
+    },
+    // Segment to play during star flight (from 35 seconds onwards)
+    flight: {
+      start: 35,  // Start at 35 seconds
+      end: 999    // End at end of track (will loop back to 35)
+    },
+    // Segment to play after crash (1 second onwards until star starts)
+    afterCrash: {
+      start: 1,   // Start at 1 second
+      end: 999    // End at end of track (will switch to flight when round starts)
+    }
+  };
+  
+  var currentSegment = null;
+  var segmentCheckInterval = null;
+  
+  // Function to convert time string (e.g., "1:30") to seconds
+  function timeToSeconds(timeStr) {
+    if (typeof timeStr === 'number') return timeStr;
+    var parts = timeStr.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
+    }
+    return parseFloat(timeStr);
+  }
+  
+  // Function to play a specific segment
+  function playSegment(segmentName) {
+    if (!window.audioSegments[segmentName]) return;
+    
+    const segment = window.audioSegments[segmentName];
+    const startTime = timeToSeconds(segment.start);
+    const endTime = timeToSeconds(segment.end);
+    
+    currentSegment = segmentName;
+    bgm.currentTime = startTime;
+    
+    // Check periodically if we've reached the end of the segment
+    if (segmentCheckInterval) {
+      clearInterval(segmentCheckInterval);
+    }
+    
+    segmentCheckInterval = setInterval(function() {
+      if (bgm.paused || !currentSegment) return;
+      
+      const segment = window.audioSegments[currentSegment];
+      if (!segment) return;
+      
+      const startTime = timeToSeconds(segment.start);
+      const endTime = timeToSeconds(segment.end);
+      
+      // Check if track has ended (reached duration)
+      if (bgm.duration > 0 && bgm.currentTime >= bgm.duration - 0.1) {
+        bgm.currentTime = startTime;
+        return;
+      }
+      
+      // For flight segment (35+), loop back to 35 when track ends
+      if (currentSegment === 'flight') {
+        // If we've somehow passed the end time (shouldn't happen with 999), loop back
+        if (endTime < 999 && bgm.currentTime >= endTime) {
+          bgm.currentTime = startTime;
+        }
+      } else {
+        // For waitingForPlayer and afterCrash segments, loop back to start when reaching end
+        if (bgm.currentTime >= endTime) {
+          bgm.currentTime = startTime;
+        }
+      }
+    }, 100); // Check every 100ms
+    
+    // Try to play if not already playing
+    if (bgm.paused) {
+      bgm.play().catch(function(){});
+    }
+  }
+  
+  // Function to switch to flight audio (35 seconds onwards)
+  window.switchToStarShootingAudio = function() {
+    playSegment('flight');
+  };
+  
+  // Function to switch to waiting/after crash audio
+  window.switchToOtherTimesAudio = function() {
+    playSegment('afterCrash');
+  };
+  
+  // Function to switch to waiting for player audio (1-28 seconds loop)
+  window.switchToWaitingForPlayerAudio = function() {
+    playSegment('waitingForPlayer');
+  };
+  
+  window.bgm = bgm; // Make accessible for volume control
+  window.playAudioSegment = playSegment; // Expose for manual control
+  
+  function tryPlay(){ 
+    // Check if audio is disabled before playing
+    const audioToggle = document.getElementById('audioToggle');
+    if (audioToggle && audioToggle.checked) {
+      // Audio is disabled, don't play
+      return;
+    }
+    
+    // If no segment is playing, start with "waitingForPlayer" segment
+    if (!currentSegment) {
+      playSegment('waitingForPlayer');
+    } else {
+      bgm.play().catch(function(){}); 
+    }
+  }
+  
+  // Initialize with "waitingForPlayer" segment and start playing automatically
+  function startAudioOnLoad() {
+    setTimeout(function() {
+      playSegment('waitingForPlayer');
+      tryPlay();
+    }, 100);
+  }
+  
+  if (document.readyState === "complete") {
+    startAudioOnLoad();
+  } else {
+    window.addEventListener("load", startAudioOnLoad);
+    // Also try on DOMContentLoaded as a fallback
+    document.addEventListener("DOMContentLoaded", startAudioOnLoad);
+  }
+  
+  ["click","touchstart","keydown"].forEach(function(ev){
+    document.addEventListener(ev, tryPlay, true);
+  });
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden) tryPlay();
+  });
+  
+  // Update volume when slider changes
+  var audioVol = document.getElementById('audioVol');
+  if(audioVol){
+    audioVol.addEventListener('input', function(){
+      bgm.volume = Number(audioVol.value||'0.2');
+    });
+  }
+})();
+</script>
+<audio id="audioUser" preload="auto" style="display:none"></audio>
+<script>
+// === Audio wiring ===
+(function(){
+  const audioToggle = document.getElementById('audioToggle');
+  const audioVol = document.getElementById('audioVol');
+  const audioFile = document.getElementById('audioFile');
+  const audioTest = document.getElementById('audioTest');
+  const audioUser = document.getElementById('audioUser');
+  // Inverted logic: checked = audio disabled, unchecked = audio enabled
+  function canPlay(){ return audioToggle && !audioToggle.checked && audioUser && audioUser.src; }
+  function setVol(){ 
+    const vol = Number(audioVol.value||'0.2');
+    if(audioUser) audioUser.volume = vol;
+    // Also update background music if it exists
+    if(window.bgm) window.bgm.volume = vol;
+  }
+  if(audioToggle){ 
+    // Check initial state and apply it
+    function applyAudioState() {
+      if (audioToggle.checked) {
+        // Disable audio - pause all audio
+        if (window.bgm && !window.bgm.paused) {
+          window.bgm.pause();
+        }
+        if (audioUser && !audioUser.paused) {
+          audioUser.pause();
+        }
+        if (window.landingBgm && !window.landingBgm.paused) {
+          window.landingBgm.pause();
+        }
+      } else {
+        // Enable audio - resume background music
+        if (window.bgm && window.bgm.paused) {
+          window.bgm.play().catch(() => {});
+        }
+        if (window.landingBgm && window.landingBgm.paused) {
+          window.landingBgm.play().catch(() => {});
+        }
+      }
+    }
+    
+    // Apply initial state
+    applyAudioState();
+    
+    audioToggle.addEventListener('change', function() {
+      setVol();
+      applyAudioState();
+    }); 
+  }
+  if(audioVol){ audioVol.addEventListener('input', setVol); setVol(); }
+  if(audioFile){
+    audioFile.addEventListener('change', ()=>{
+      const f = audioFile.files && audioFile.files[0];
+      if(f){ audioUser.src = URL.createObjectURL(f); }
+    });
+  }
+  if(audioTest){
+    audioTest.addEventListener('click', ()=>{ if(canPlay()){ audioUser.currentTime=0; audioUser.play().catch(()=>{}); } });
+  }
+  window._audioPlay = function(rate=1.0){
+    if(!canPlay()) return;
+    try{ audioUser.playbackRate = rate; }catch(e){}
+    audioUser.currentTime = 0;
+    audioUser.play().catch(()=>{});
+  };
+})();
+</script>
+<div aria-hidden="true" class="drawer" id="drawer" inert="">
+<div class="dhead">
+<div class="dtitle">Settings &amp; Need to knows</div>
+<button aria-label="Close" class="x" id="closeX">✕</button>
+</div>
+<div class="body">
+<details class="drawerSection" open="">
+<summary class="sectionTitle">How to play</summary>
+<div class="bv-section-body">
+  <h4 style="margin:0 0 8px 0;">Introduction</h4>
+  <p>Shooting Star PvP is a multiplayer game mode where players compete against each other. Place your bet and cash out at the right moment to win the pot!</p>
+  <h4 style="margin:16px 0 8px 0;">Game Process</h4>
+  <p>Players place bets before the round starts. The multiplier starts at <strong>1.00</strong> and progressively increases. The last player to cash out before the star crashes wins the pot!</p>
+  <h4 style="margin:16px 0 8px 0;">How to place your bet</h4>
+  <p>The bet value is set by the operator and may vary from one operator to another</p>
+  <h4 style="margin:16px 0 8px 0;">Cash out</h4>
+  <p>Select the red <strong>Cash Out</strong> button to claim your winnings. The player with the highest multiplier wins the pot!</p>
+</div>
+</details>
+<hr class="thin"/>
+<details class="drawerSection" id="secHistory">
+<summary class="sectionTitle">My Bets</summary>
+<div id="historyList"></div>
+</details>
+<hr class="thin"/>
+<details class="drawerSection">
+<summary class="sectionTitle">Audio</summary>
+<div class="prow">
+  <label style="display:flex;gap:8px;align-items:center;">
+<input id="audioToggle" type="checkbox"/> Disable audio
+  </label>
+<div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+  Volume: <input id="audioVol" max="1" min="0" step="0.05" type="range" value="0.2"/>
+</div>
+</div>
+</details>
+<div class="foot"><button class="btn" id="drawerCloseBtn">Close</button></div>
+</div>
+</div>
+<script>
+// Drawer functionality
+(function(){
+  const drawer = document.getElementById('drawer');
+  const openBtn = document.getElementById('openDrawer');
+  const closeX = document.getElementById('closeX');
+  const closeBtn = document.getElementById('drawerCloseBtn');
+  
+  if (!drawer || !openBtn) return;
+  
+  // Initialize audio controls when drawer opens
+  function initAudioControls(){
+    const audioToggle = document.getElementById('audioToggle');
+    const audioVol = document.getElementById('audioVol');
+    const audioUser = document.getElementById('audioUser');
+    
+    if (!audioToggle || !audioVol) return;
+    
+    // Check if already initialized (avoid duplicate listeners)
+    if (audioToggle.dataset.initialized === 'true') return;
+    
+    function setVol(){ 
+      const vol = Number(audioVol.value||'0.2');
+      if(audioUser) audioUser.volume = vol;
+      if(window.bgm) window.bgm.volume = vol;
+    }
+    
+    function applyAudioState() {
+      if (audioToggle.checked) {
+        if (window.bgm && !window.bgm.paused) window.bgm.pause();
+        if (audioUser && !audioUser.paused) audioUser.pause();
+        if (window.landingBgm && !window.landingBgm.paused) window.landingBgm.pause();
+      } else {
+        if (window.bgm && window.bgm.paused) window.bgm.play().catch(() => {});
+        if (window.landingBgm && window.landingBgm.paused) window.landingBgm.play().catch(() => {});
+      }
+    }
+    
+    // Mark as initialized
+    audioToggle.dataset.initialized = 'true';
+    audioVol.dataset.initialized = 'true';
+    
+    // Apply initial state
+    applyAudioState();
+    setVol();
+    
+    // Add event listeners
+    audioToggle.addEventListener('change', function() {
+      setVol();
+      applyAudioState();
+    }); 
+    
+    audioVol.addEventListener('input', setVol);
+  }
+  
+  function openDrawer(){
+    drawer.classList.add('open');
+    drawer.removeAttribute('aria-hidden');
+    drawer.removeAttribute('inert');
+    if (closeX) closeX.focus();
+    document.body.style.overflow = 'hidden';
+    
+    // Hide the starry sky layer when drawer opens
+    const pvpTopLayer = document.getElementById('pvpTopLayer');
+    if (pvpTopLayer) {
+      pvpTopLayer.style.display = 'none';
+      pvpTopLayer.style.visibility = 'hidden';
+      pvpTopLayer.style.opacity = '0';
+      pvpTopLayer.style.pointerEvents = 'none';
+    }
+    
+    // Close all details sections by default
+    const allDetails = drawer.querySelectorAll('details.drawerSection');
+    allDetails.forEach(detail => {
+      detail.removeAttribute('open');
+    });
+    
+    // Initialize audio controls when drawer opens
+    setTimeout(initAudioControls, 50);
+  }
+  
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    drawer.setAttribute('inert','');
+    if (openBtn) openBtn.focus();
+    document.body.style.overflow = '';
+    
+    // Show the starry sky layer when drawer closes
+    const pvpTopLayer = document.getElementById('pvpTopLayer');
+    if (pvpTopLayer) {
+      pvpTopLayer.style.display = '';
+      pvpTopLayer.style.visibility = '';
+      pvpTopLayer.style.opacity = '';
+      pvpTopLayer.style.pointerEvents = '';
+    }
+  }
+  
+  if (openBtn) openBtn.addEventListener('click', () => openDrawer());
+  if (closeX) closeX.addEventListener('click', closeDrawer);
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (drawer) drawer.addEventListener('click', function(e){
+    if (e.target === drawer) closeDrawer();
+  });
+  
+  // Also initialize on page load in case drawer is already open
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(initAudioControls, 100);
+    });
+  } else {
+    setTimeout(initAudioControls, 100);
+  }
+})();
+</script>
+<script id="bv-pvp-info-tooltip">
+(function(){
+  var icon = document.getElementById('pvpInfoIcon');
+  if(!icon) return;
+  
+  // Create tooltip
+  var tip = document.createElement('div');
+  tip.className = 'bv-mode-tip';
+  tip.innerHTML = [
+    '<div class="line first">Player vs Player (PvP) Game Mode</div>',
+    '<div class="line">Compete in real-time by cashing out last</div>',
+    '<div class="line">Win the pot if the star has not crashed</div>',
+    '<div class="line last">Hang on, this is a wild ride!<span class="u"></span></div>'
+  ].join('');
+  document.body.appendChild(tip);
+  
+  var isOpen = false;
+  
+  function place(){
+    var r = icon.getBoundingClientRect();
+    var vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    var left = r.left + r.width/2 - tip.offsetWidth/2;
+    left = Math.max(8, Math.min(left, vw - tip.offsetWidth - 8));
+    var top = r.bottom + 8;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  
+  function animateLines(){
+    var lines = tip.querySelectorAll('.line');
+    var u = tip.querySelector('.line.last .u');
+    var base = 0.1, dur = 0.6, gap = 0.45, step = dur + gap;
+    lines.forEach(function(el, i){
+      el.style.animation = 'none';
+      void el.offsetHeight;
+      el.style.animation = 'bvFade ' + dur + 's forwards';
+      el.style.animationDelay = (base + step * i) + 's';
+    });
+    if(u){
+      setTimeout(function(){
+        u.style.animation = 'bvFade 0.4s forwards';
+        u.style.animationDelay = (base + step * lines.length + 0.2) + 's';
+      }, 50);
+    }
+  }
+  
+  function open(){
+    if(isOpen) return;
+    isOpen = true;
+    place();
+    tip.classList.add('bv-open');
+    animateLines();
+  }
+  
+  function close(){
+    if(!isOpen) return;
+    isOpen = false;
+    tip.classList.remove('bv-open');
+    var lines = tip.querySelectorAll('.line');
+    lines.forEach(function(el){ el.style.animation = 'none'; });
+    var u = tip.querySelector('.line.last .u');
+    if(u) u.style.animation = 'none';
+  }
+  
+  function toggle(){
+    isOpen ? close() : open();
+  }
+  
+  icon.addEventListener('click', toggle);
+  icon.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      toggle();
+    }
+  });
+  
+  // Close on click outside
+  document.addEventListener('click', function(e){
+    if(isOpen && !icon.contains(e.target) && !tip.contains(e.target)){
+      close();
+    }
+  });
+  
+  // Close on escape
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && isOpen){
+      close();
+    }
+  });
+  
+  // Reposition on resize
+  window.addEventListener('resize', function(){
+    if(isOpen) place();
+  });
+})();
+</script>
+
+</body>
+
+</html>
+

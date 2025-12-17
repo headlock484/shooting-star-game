@@ -1,0 +1,17 @@
+{
+  "name": "shooting-star-game",
+  "version": "1.0.0",
+  "description": "Shooting Star game with Classic and PvP modes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["game", "shooting-star", "crash-game"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+

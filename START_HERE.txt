@@ -1,0 +1,87 @@
+================================================================================
+                    QUICK START GUIDE - VIEW YOUR GAME
+================================================================================
+
+EVERY TIME YOU WANT TO SEE YOUR GAME:
+
+1. Open PowerShell in your project folder:
+   - Right-click on the folder
+   - Select "Open in Terminal"
+   OR
+   - Press Windows Key, type "powershell", press Enter
+   - Type: cd "C:\Users\fiona\OneDrive\Desktop\FINAL_shooting_star\public"
+
+2. Make sure Docker Desktop is running (whale icon in system tray)
+
+3. Type this command:
+   docker-compose up -d
+
+4. Open your browser and go to:
+   http://localhost:3000
+
+YOU SHOULD SEE YOUR GAME!
+
+================================================================================
+                    IF YOU MADE CHANGES TO YOUR FILES:
+================================================================================
+
+After editing HTML, CSS, or JavaScript:
+
+1. Stop the old version:
+   docker-compose down
+
+2. Rebuild with your changes:
+   docker-compose up -d --build
+
+3. Refresh your browser (press F5)
+
+================================================================================
+                    FILES TO HAND OVER TO DEVELOPERS
+================================================================================
+
+All files are in this folder:
+C:\Users\fiona\OneDrive\Desktop\FINAL_shooting_star\public\
+
+ESSENTIAL FILES (Must Include):
+- index.html
+- shooting_star_classic_FINAL.html
+- shooting_star_pvp_FINAL.html
+- multiplier-timing.js
+- js/makeAWish.js
+- assets/audio/Owl City - Fireflies (Said The Sky Remix).mp3
+- package.json
+- server.js
+- Dockerfile
+- docker-compose.yml
+
+OPTIONAL (Documentation):
+- README.md
+- DOCKER_GUIDE.md
+- QUICK_START.md
+- FILES_TO_HANDOVER.md
+- DEPLOYMENT_CHECKLIST.md
+
+================================================================================
+                    HOW TO VIEW THE .MD FILES
+================================================================================
+
+The .md files are Markdown files. To view them:
+
+OPTION 1: Open in Notepad
+- Right-click the file
+- Select "Open with" > "Notepad"
+
+OPTION 2: Open in any text editor
+- Double-click and choose a text editor
+
+OPTION 3: View in PowerShell
+- Type: Get-Content QUICK_START.md
+- Or: type QUICK_START.md
+
+OPTION 4: If OneDrive is blocking access:
+- Wait a few minutes for OneDrive to sync
+- Or copy the files to a non-OneDrive location
+- Or right-click OneDrive icon > Settings > make sure files are synced
+
+================================================================================
+
